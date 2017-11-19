@@ -21,13 +21,13 @@ using namespace std;
 class TaskPrinter
 {
 	public:
-		static unique_ptr<Stopword> setUpStopwords();
+		static Stopword* setUpStopwords();
 		static vector<string>& setUpFiles();
 		static DocumentIndexer& setUpLibrary(vector<string>& fileNames);
 		static SentenceIndexer& setUpSentences(vector<string>& fileNames);
 		static string readQuestion();	//belongs in TaskPrinter
 
-		static void printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, unique_ptr<Stopword> stopwords);
+		static void printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, Stopword* stopwords);
 		static void printWeightedIndex(DocumentIndexer library);
 		static void printLegend(const vector<string>& fileNames);
 		static void printQuery(DocumentIndexer library);

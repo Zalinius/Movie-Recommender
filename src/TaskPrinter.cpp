@@ -23,21 +23,26 @@ using namespace std;
  * Read in stopwords, create the Stopword object which stores the list of stopwords
  * @return the newly created Stopword object
  */
-unique_ptr<Stopword> TaskPrinter::setUpStopwords() {
-	string stopWordsFile;
-	cout << "Enter the stopwords file name: ";
-	cin >> stopWordsFile;
-	unique_ptr<Stopword> stopwords;
+Stopword* TaskPrinter::setUpStopwords() {
+
+	Stopword* stopwords;
 	bool done = false;
 	while (!done){
 		try{
-			stopwords = make_unique<Stopword>(stopWordsFile.c_str());
+			string stopWordsFile;
+			cout << "Enter the stopwords file name: ";
+			cin >> stopWordsFile;
+			stopwords = new Stopword(stopWordsFile.c_str());
 			done = true;
 			cout << stopWordsFile << " loaded." << endl;
 		}
 		catch (IndexException& e)
 		{
-			cerr << e.what();
+			cout << e.what() << endl;
+		}
+		catch (...)
+		{
+			cout << "durr" << endl;
 		}
 	}
 	return stopwords;
@@ -49,21 +54,22 @@ unique_ptr<Stopword> TaskPrinter::setUpStopwords() {
  * @return the vector<string> of file names
  */
 vector<string>& TaskPrinter::setUpFiles(){
-
-	string configurationFile;
-	cout << "Enter the configuration file name: ";
-	cin >> configurationFile;
 	ifstream fin;
 	bool done = false;
 	while (!done){
 		try{
+			string configurationFile;
+			cout << "Enter the configuration file name: ";
+			cin >> configurationFile;
 			fin = ifstream(configurationFile.c_str());
+			if(!fin)
+				throw IndexException(configurationFile);
 			done = true;
 			cout << configurationFile << " loaded." << endl;
 		}
 		catch (IndexException& e)
 		{
-			cerr << e.what();
+			cout << e.what() << endl;
 		}
 	}
 
@@ -102,8 +108,9 @@ DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames){
 
 	//User may abort the program if they think too few files have been read in successfully
 	if (failCount > 0){
-		char proceed;
+		char proceed = 'n';
 		cout << fileNames.size() - failCount << "/" << fileNames.size() << " files read in. Proceed? Y/N" << endl;
+		cin >> proceed;
 		if (tolower(proceed) == 'n')
 			exit(0);
 	}
@@ -158,13 +165,13 @@ void TaskPrinter::printQuery(DocumentIndexer library)
  */
 string TaskPrinter::readQuestion() {
 	string questionFileName;
-	Document d;
+	Document* d;
 	bool done = false;
 	while (!done){
 		try{
 			cout << "Enter the question file name: ";
 			cin >> questionFileName;
-			d(questionFileName);
+			d = new Document(questionFileName, true);
 			done = true;
 			cout << questionFileName << " loaded." << endl;
 		}
@@ -175,10 +182,12 @@ string TaskPrinter::readQuestion() {
 	}
 
 	string cleanQuestion = "";
-	for(vector<string>::const_iterator it = d.getTokens().begin(); it != d.getTokens().end(); ++it){
+	for(vector<string>::const_iterator it = d->getTokens().begin(); it != d->getTokens().end(); ++it){
 		cleanQuestion += *it;
 		cleanQuestion += " ";
 	}
+
+	delete d;
 
 	return cleanQuestion;
 }
@@ -205,8 +214,9 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
 
 	//User may abort the program if they think too few files have been read in successfully
 	if (failCount > 0){
-		char proceed;
+		char proceed = 'n';
 		cout << fileNames.size() - failCount << "/" << fileNames.size() << " files read in. Proceed? Y/N" << endl;
+		cin >> proceed;
 		if (tolower(proceed) == 'n')
 			exit(0);
 	}
@@ -235,7 +245,7 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
  * @param withoutStops whether of not stopwords will be printed
  * @param stopwords the object storing the stopwords
  */
-void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, unique_ptr<Stopword> stopwords){
+void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, Stopword* stopwords){
 	//Header
 	size_t longestWord = longest(library.getDictionary());
 	const string DICTIONARY = "Dictionary";
@@ -264,7 +274,7 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 		for(vector<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){
 
 			string word = it->term;
-			if(!(stopwords(word) && withoutStops)){
+			if(!((*stopwords)(word) && withoutStops)){
 				cout << left << setw(longestWord + 1) << " " + it->term;
 				for(vector<unsigned int>::const_iterator it2 = it->termFrequencies.begin(); it2 != it->termFrequencies.end(); ++it2){
 					cout << right << setw(findn(docCount) + 4) << *it2;	//width is +4 for " Doc"
@@ -311,7 +321,7 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 
 	for(vector<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){
 		string word = it->term;
-		if(!(stopwords(word) && withoutStops)){
+		if(!((*stopwords)(word) && withoutStops)){
 			cout << left << setw(longestWord + 1) << " " + word;
 			cout.flush();
 			for(vector<double>::const_iterator it2 = it->weight.begin(); it2 != it->weight.end(); ++it2){

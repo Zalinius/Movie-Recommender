@@ -14,7 +14,7 @@ using namespace std;
  * @param filename The name of the Stopword file
  * @param allowCopies Whether or not duplicate stopword tokens should be allowed. Generally this is false.
  */
-Stopword::Stopword(string filename, bool allowCopies)
+Stopword::Stopword(string filename, bool allowCopies)  throw(IndexException)
 :Document(filename, allowCopies)
 {
 	//cout << "Stopword Constructed" << endl;

@@ -18,7 +18,7 @@ using namespace std;
  * @param fileName The name of the file to be read in.
  * @allowCopies whether or not copies should be kept when tokenizing the text.
  */
-Document::Document(string fileName, bool allowCopies)
+Document::Document(string fileName, bool allowCopies)  throw(IndexException)
 :IndexItem(getText(fileName), allowCopies), fileName(fileName), sentenceTokens(SentenceTokenizer(content(), allowCopies)), sentences(makeSentences(sentenceTokens))
 {
 	//cout << "Document Constructed" << endl;
@@ -58,12 +58,10 @@ const string Document::getText(string file) throw(IndexException){
 	ifstream docIn;
 
 	docIn = ifstream(file.c_str());
-	if(!docIn)
+	if(!docIn){
+		cout << "thru" << endl;
 		throw new IndexException(file);
-
-
-	cout << file << " loaded" << endl;
-
+	}
 	string text;
 	char temp;
 	while(docIn >> noskipws >> temp){

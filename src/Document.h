@@ -20,7 +20,7 @@ using namespace std;
 class Document: public IndexItem{
 
 public:
-	Document(string fileName, bool allowCopies = true);
+	Document(string fileName, bool allowCopies = true)  throw(IndexException);
 	virtual ~Document();
     const string& getFileName() const;
     vector<Sentence>& getSentences();
