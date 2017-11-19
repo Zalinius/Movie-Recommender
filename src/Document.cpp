@@ -6,8 +6,6 @@
  */
 
 #include "Document.h"
-#include "SentenceTokenizer.h"
-#include "Sentence.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -56,16 +54,15 @@ vector<Sentence>& Document::getSentences(){
  * @param file The name of the file.
  * @return A single string containing the entire text.
  */
-const string Document::getText(string file){
-	ifstream docIn(file.c_str());
+const string Document::getText(string file) throw(IndexException){
+	ifstream docIn;
 
-	if(docIn)
-		cout << file << " loaded" << endl;
-	else{
-		docIn.close();
-		cerr << "Error: " << file << " could not be loaded!" << endl;
-		exit(2);
-	}
+	docIn = ifstream(file.c_str());
+	if(!docIn)
+		throw new IndexException(file);
+
+
+	cout << file << " loaded" << endl;
 
 	string text;
 	char temp;

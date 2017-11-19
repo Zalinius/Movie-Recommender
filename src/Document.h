@@ -11,6 +11,7 @@
 #include "IndexItem.h"
 #include "SentenceTokenizer.h"
 #include "Sentence.h"
+#include "IndexException.h"
 #include <string>
 
 
@@ -26,7 +27,7 @@ public:
 protected:
 	virtual string::size_type size() const override;
 private:
-    static const string getText(string file);
+    static const string getText(string file) throw(IndexException);
     static const vector<Sentence> makeSentences(const SentenceTokenizer sentenceTokens);
 
 	string fileName;

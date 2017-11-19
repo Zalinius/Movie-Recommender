@@ -1,6 +1,6 @@
 //============================================================================
 // Name        : Indexing.cpp
-// Author      : 
+// Author      :
 // Version     :
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
@@ -15,7 +15,7 @@ int main() {
 
 
 	vector<string> fileNames = TaskPrinter::setUpFiles();
-	Stopword stopwords = TaskPrinter::setUpStopwords();
+	unique_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
 
 	DocumentIndexer library = TaskPrinter::setUpLibrary(fileNames);
 
