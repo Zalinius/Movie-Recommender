@@ -1,0 +1,5 @@
+doc dr rev ed pres gov col cpt pvt lt sgt cpl lt
+mr mrs ms hon jr sr vs
+corp inc uninc ltd lcc dept est inst
+tsp tbsp gal lb pt qt cal oz ft yd mm cm dm km mg kg no sec min hr
+ave bvld ln rd st rt sq crst dist mt
