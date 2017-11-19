@@ -23,26 +23,22 @@ using namespace std;
  * Read in stopwords, create the Stopword object which stores the list of stopwords
  * @return the newly created Stopword object
  */
-Stopword* TaskPrinter::setUpStopwords() {
+unique_ptr<Stopword> TaskPrinter::setUpStopwords() {
 
-	Stopword* stopwords;
+	unique_ptr<Stopword> stopwords;
 	bool done = false;
 	while (!done){
 		try{
 			string stopWordsFile;
 			cout << "Enter the stopwords file name: ";
 			cin >> stopWordsFile;
-			stopwords = new Stopword(stopWordsFile.c_str());
+			stopwords = make_unique<Stopword>(stopWordsFile.c_str());
 			done = true;
 			cout << stopWordsFile << " loaded." << endl;
 		}
 		catch (IndexException& e)
 		{
 			cout << e.what() << endl;
-		}
-		catch (...)
-		{
-			cout << "durr" << endl;
 		}
 	}
 	return stopwords;
@@ -245,7 +241,7 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
  * @param withoutStops whether of not stopwords will be printed
  * @param stopwords the object storing the stopwords
  */
-void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, Stopword* stopwords){
+void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, unique_ptr<Stopword> stopwords){
 	//Header
 	size_t longestWord = longest(library.getDictionary());
 	const string DICTIONARY = "Dictionary";

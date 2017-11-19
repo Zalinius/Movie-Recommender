@@ -15,11 +15,9 @@ int main() {
 
 	vector<string> fileNames = TaskPrinter::setUpFiles();
 
-	Stopword* stopwords = TaskPrinter::setUpStopwords();
+	unique_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
 
-	cout << "did it" << endl;
-
-	//DocumentIndexer library = TaskPrinter::setUpLibrary(fileNames);
+	DocumentIndexer library = TaskPrinter::setUpLibrary(fileNames);
 
 //	TaskPrinter::printIndex(library, fileNames, false, stopwords);
 //	TaskPrinter::printIndex(library, fileNames, true, stopwords);

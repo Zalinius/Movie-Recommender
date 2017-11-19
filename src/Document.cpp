@@ -60,7 +60,7 @@ const string Document::getText(string file) throw(IndexException){
 	docIn = ifstream(file.c_str());
 	if(!docIn){
 		cout << "thru" << endl;
-		throw new IndexException(file);
+		throw IndexException(file);
 	}
 	string text;
 	char temp;
