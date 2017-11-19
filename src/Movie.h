@@ -8,12 +8,18 @@
 #ifndef MOVIE_H_
 #define MOVIE_H_
 
+#include "IndexItem.h"
+#include "Date.h"
+#include <iostream>
+#include <string>
+
 using namespace std;
 
 class Movie : public IndexItem{
 
 public:
-	Movie(const string content, bool allowCopies, const string name, unsigned int iD, Date releaseDate);
+	Movie(string tsvString);
+	Movie(const string content, const string title, unsigned int iD, Date releaseDate);
 	virtual ~Movie() override;
 
 	virtual string::size_type size() const override;
@@ -21,14 +27,20 @@ public:
 	const string getName() const;
 	unsigned int getID() const;
 	const Date getReleaseDate() const;
+
+	friend bool operator < (const Movie &left, const Movie &right);
+
 protected:
 
 private:
-	string name;
+	string title;
 	unsigned int iD;
 	Date releaseDate;
 
 	virtual const string toString() const override;
+
+	static vector<unsigned char> delims;
+	void parseMovie(const string& tvsString);
 };
 
 

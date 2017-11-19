@@ -25,6 +25,8 @@ public:
 	virtual string::size_type size() const = 0;
 	const string& content() const;
 
+	void setContent(string text, bool allowCopies);
+
 protected:
 
 private:

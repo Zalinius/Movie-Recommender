@@ -43,6 +43,10 @@ const vector<string>& IndexItem::getTokens() const{
 	return tokens.getTokens();
 }
 
+void IndexItem::setContent(string text, bool allowCopies){
+	tokens = WordTokenizer(text, allowCopies);
+}
+
 /**
  * The overriden insertion<< operator. Mainly used for debugging.
  * It calls the pure virtual function toString(), which must be overriden in all subclasses.

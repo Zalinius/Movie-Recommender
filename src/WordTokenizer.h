@@ -19,7 +19,6 @@ public:
 	WordTokenizer(const string text, bool allowCopies = true);
 	virtual ~WordTokenizer() override;
 
-
 protected:
 private:
 	virtual string toString() const override;

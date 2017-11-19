@@ -30,11 +30,12 @@ public:
 	const vector<string>& getTokens() const;
 
 	static bool isAbbreviation(string term);
+
 protected:
 private:
-	const string text;
+	string text;
 	vector<string> words;
-	const bool allowCopies;
+	bool allowCopies;
 
 	static Stopword abbreviations;
 	static string lastWord(const string &sentence);
