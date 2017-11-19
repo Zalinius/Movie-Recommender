@@ -11,6 +11,7 @@
 #include "IndexItem.h"
 #include "SentenceTokenizer.h"
 #include "Sentence.h"
+#include "IndexException.h"
 #include <string>
 
 
@@ -19,14 +20,14 @@ using namespace std;
 class Document: public IndexItem{
 
 public:
-	Document(string fileName, bool allowCopies = true);
+	Document(string fileName, bool allowCopies = true)  throw(IndexException);
 	virtual ~Document();
     const string& getFileName() const;
     vector<Sentence>& getSentences();
 protected:
 	virtual string::size_type size() const override;
 private:
-    static const string getText(string file);
+    static const string getText(string file) throw(IndexException);
     static const vector<Sentence> makeSentences(const SentenceTokenizer sentenceTokens);
 
 	string fileName;

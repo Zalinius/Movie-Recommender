@@ -6,8 +6,6 @@
  */
 
 #include "Document.h"
-#include "SentenceTokenizer.h"
-#include "Sentence.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -20,7 +18,7 @@ using namespace std;
  * @param fileName The name of the file to be read in.
  * @allowCopies whether or not copies should be kept when tokenizing the text.
  */
-Document::Document(string fileName, bool allowCopies)
+Document::Document(string fileName, bool allowCopies)  throw(IndexException)
 :IndexItem(getText(fileName), allowCopies), fileName(fileName), sentenceTokens(SentenceTokenizer(content(), allowCopies)), sentences(makeSentences(sentenceTokens))
 {
 	//cout << "Document Constructed" << endl;
@@ -56,17 +54,14 @@ vector<Sentence>& Document::getSentences(){
  * @param file The name of the file.
  * @return A single string containing the entire text.
  */
-const string Document::getText(string file){
-	ifstream docIn(file.c_str());
+const string Document::getText(string file) throw(IndexException){
+	ifstream docIn;
 
-	if(docIn)
-		cout << file << " loaded" << endl;
-	else{
-		docIn.close();
-		cerr << "Error: " << file << " could not be loaded!" << endl;
-		exit(2);
+	docIn = ifstream(file.c_str());
+	if(!docIn){
+		cout << "thru" << endl;
+		throw IndexException(file);
 	}
-
 	string text;
 	char temp;
 	while(docIn >> noskipws >> temp){

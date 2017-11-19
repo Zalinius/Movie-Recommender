@@ -15,7 +15,7 @@ using namespace std;
 class Stopword: public Document{
 
 public:
-	Stopword(string filename, bool allowCopies = false);
+	Stopword(string filename, bool allowCopies = false)  throw(IndexException);
 	virtual ~Stopword();
 
 	bool operator()(string token) const;
