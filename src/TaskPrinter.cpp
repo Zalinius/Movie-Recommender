@@ -15,6 +15,8 @@
 #include <vector>
 #include <iomanip>
 
+static const string DOC_PATH = "docs/";//The path for the docs folder
+
 using namespace std;
 
 // ->Handles all the printing and formatting of the index, queries, etc.
@@ -72,7 +74,7 @@ vector<string>& TaskPrinter::setUpFiles(){
 	vector<string>* fileNames = new vector<string>();
 	string name;
 	while(getline(fin, name)){
-		fileNames->push_back("docs/" + name);
+		fileNames->push_back(DOC_PATH + name);
 	}
 	fin.close();
 	cout << fileNames->size() << " file names acquired!\n" << endl;

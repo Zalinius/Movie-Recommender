@@ -17,10 +17,17 @@
 
 using namespace std;
 
+/**
+ * This special class is used to create custom delimiters objects to imbue into input streams.
+ */
 class CustomCType : public ctype<char>
 {
 	mask my_table[table_size];
 public:
+	/**
+	 * @param delimiters
+	 * @param noSpace
+	 */
 	CustomCType(const vector<unsigned char>& delimiters, bool noSpace, size_t refs = 0)
 	: ctype<char>(&my_table[0], false, refs)
 	  {

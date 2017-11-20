@@ -7,6 +7,7 @@
 
 #include "Movie.h"
 #include "Date.h"
+#include <iomanip>
 #include <sstream>
 
 using namespace std;
@@ -56,8 +57,8 @@ string::size_type Movie::size() const{
 
 const string Movie::toString() const{
 	stringstream debugString;
-	debugString << to_string(iD);
-	debugString << ": ";
+	debugString << setw(10) << left << to_string(iD) + ":";
+//	debugString << ":";
 	debugString << title;
 	debugString << ", ";
 	debugString << releaseDate;
@@ -69,7 +70,7 @@ bool operator < (const Movie &left, const Movie &right){
 	return left.iD < right.iD;
 }
 
-
+/*
 int main(){
 	Movie m1("Rawr", "Dawn of the Apes", 12345, Date("2010-04-12"));
 	Movie m2("12345	mksk	Dawn of the Apes	2010 - 04- 12");
@@ -81,4 +82,4 @@ int main(){
 	cout << m4 << endl;
 
 }
-
+*/
