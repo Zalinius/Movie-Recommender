@@ -15,13 +15,13 @@ int main() {
 
 	vector<string> fileNames = TaskPrinter::setUpFiles();
 
-	unique_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
+	shared_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
 
 	DocumentIndexer library = TaskPrinter::setUpLibrary(fileNames);
 
-//	TaskPrinter::printIndex(library, fileNames, false, stopwords);
-//	TaskPrinter::printIndex(library, fileNames, true, stopwords);
-//	TaskPrinter::printLegend(fileNames);
+	TaskPrinter::printIndex(library, fileNames, false, stopwords);
+	TaskPrinter::printIndex(library, fileNames, true, stopwords);
+	TaskPrinter::printLegend(fileNames);
 
 
 	return 0;
