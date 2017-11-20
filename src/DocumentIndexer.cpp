@@ -63,6 +63,13 @@ IndexItem & operator>> (Sentence *s, DocumentIndexer& idx){
 	return *s;
 }
 
+void DocumentIndexer::addMovie(Movie *m, shared_ptr<Stopword> stopwords){
+	getIndex().push_back(m);
+	setNormalized(false);
+
+	createTerms(m->getTokens(), 0, stopwords);
+}
+
 
 /**
  * Compares the Documents of the calling Indexer to the user's query for likeness in token weights

@@ -50,32 +50,32 @@ shared_ptr<Stopword> TaskPrinter::setUpStopwords() {
  * @return the vector<string> of file names
  */
 vector<string>& TaskPrinter::setUpFiles(){
-	ifstream fin;
-	bool done = false;
-	while (!done){
-		try{
-			string configurationFile;
-			cout << "Enter the configuration file name: ";
-			cin >> configurationFile;
-			fin = ifstream(configurationFile.c_str());
-			if(!fin)
-				throw IndexException(configurationFile);
-			done = true;
-			cout << configurationFile << " loaded." << endl;
-		}
-		catch (IndexException& e)
-		{
-			cout << e.what() << endl;
-		}
-	}
+
+	ifstream fin = setUpFileStream("configuration");
 
 	vector<string>* fileNames = new vector<string>();
 	string name;
+	unsigned int failCount = 0;
 	while(getline(fin, name)){
+		try{
+		Document d("docs/" + name,true);
 		fileNames->push_back("docs/" + name);
+		}
+		catch (IndexException& e){
+			failCount++;
+		}
+
 	}
 	fin.close();
-	cout << fileNames->size() << " file names acquired!\n" << endl;
+
+	//User may abort the program if they think too few files have been read in successfully
+	if (failCount > 0){
+		char proceed = 'n';
+		cout << fileNames->size()<< "/" << fileNames->size() + failCount  << " files read in. Proceed? Y/N" << endl;
+		cin >> proceed;
+		if (tolower(proceed) == 'n')
+			exit(0);
+	}
 
 	return *fileNames;
 }
@@ -90,25 +90,14 @@ vector<string>& TaskPrinter::setUpFiles(){
 DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames){
 
 	DocumentIndexer* library = new DocumentIndexer(fileNames.size());
-	//cout << "made a library" << endl;
-	unsigned int failCount = 0;
 	for (vector<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it){
 		try{
 		Document* d = new Document(*it,true);
 		d >> *library;
 		}
 		catch (IndexException& e){
-			failCount++;
+			//do nothing, this
 		}
-	}
-
-	//User may abort the program if they think too few files have been read in successfully
-	if (failCount > 0){
-		char proceed = 'n';
-		cout << fileNames.size() - failCount << "/" << fileNames.size() << " files read in. Proceed? Y/N" << endl;
-		cin >> proceed;
-		if (tolower(proceed) == 'n')
-			exit(0);
 	}
 
 	library->sortDict();
@@ -196,7 +185,6 @@ string TaskPrinter::readQuestion() {
 SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
 	vector<Document*> docs;
 	int sentenceCount = 0;
-	unsigned int failCount = 0;
 	for (vector<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it){
 		try{
 			Document* d = new Document(*it,true);
@@ -204,22 +192,13 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
 			sentenceCount += d->getSentences().size();
 		}
 		catch (IndexException& e){
-			failCount++;
+			//do nothing
 		}
-	}
-
-	//User may abort the program if they think too few files have been read in successfully
-	if (failCount > 0){
-		char proceed = 'n';
-		cout << fileNames.size() - failCount << "/" << fileNames.size() << " files read in. Proceed? Y/N" << endl;
-		cin >> proceed;
-		if (tolower(proceed) == 'n')
-			exit(0);
 	}
 
 	SentenceIndexer* library = new SentenceIndexer(sentenceCount);
 
-	unsigned int docNo = 0;
+	unsigned short docNo = 0;
 	for(vector<Document*>::iterator it = docs.begin(); it != docs.end(); ++it){
 		for(vector<Sentence>::iterator it2 = (**it).getSentences().begin(); it2 != (*it)->getSentences().end(); ++it2){
 			it2->setDoc(docNo);
@@ -262,7 +241,7 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 	cout << setw(6) << right << "Df";
 	cout << "\n";
 
-	vector<unsigned int> noStopWordTotals(fileNames.size());
+	vector<unsigned short> noStopWordTotals(fileNames.size());
 	vector<Term> dict = library.getDictionary();
 	//Printing the words and counts
 	{
@@ -272,7 +251,7 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 			string word = it->term;
 			if(!((*stopwords)(word) && withoutStops)){
 				cout << left << setw(longestWord + 1) << " " + it->term;
-				for(vector<unsigned int>::const_iterator it2 = it->termFrequencies.begin(); it2 != it->termFrequencies.end(); ++it2){
+				for(vector<unsigned short>::const_iterator it2 = it->termFrequencies.begin(); it2 != it->termFrequencies.end(); ++it2){
 					cout << right << setw(findn(docCount) + 4) << *it2;	//width is +4 for " Doc"
 					noStopWordTotals.at(docCount-1) += *it2;
 					++docCount;
@@ -290,7 +269,7 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 	cout << left << setw(longestWord + 1) << "Total";
 	docCount = 1;
 	if(withoutStops){
-		for(vector<unsigned int>::const_iterator it = noStopWordTotals.begin(); it != noStopWordTotals.end(); ++it){
+		for(vector<unsigned short>::const_iterator it = noStopWordTotals.begin(); it != noStopWordTotals.end(); ++it){
 			cout << right << setw(findn(docCount) + 4) << *it; //width is +4 for " Doc"
 			++docCount;
 		}
@@ -320,7 +299,7 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 		if(!((*stopwords)(word) && withoutStops)){
 			cout << left << setw(longestWord + 1) << " " + word;
 			cout.flush();
-			for(vector<double>::const_iterator it2 = it->weight.begin(); it2 != it->weight.end(); ++it2){
+			for(vector<float>::const_iterator it2 = it->weight.begin(); it2 != it->weight.end(); ++it2){
 				cout << right << setw(findn(docCount) + 4) << setprecision(2) << *it2;	//width is +4 for " Doc"
 				noStopWordTotals.at(docCount-1) += *it2;
 				++docCount;
@@ -376,4 +355,102 @@ size_t TaskPrinter::longest(vector<Term> dictionary){
 			longest = it->term.length();
 	}
 	return longest;
+}
+
+
+ifstream TaskPrinter::setUpFileStream(string desiredFile){
+	ifstream ifs;
+	bool done = false;
+	while (!done){
+		try{
+			string fileName;
+			cout << "Enter the " << desiredFile << " file name: ";
+			cin >> fileName;
+			ifs = ifstream(fileName.c_str());
+			if(!ifs)
+				throw IndexException(fileName);
+			done = true;
+			cout << fileName << " loaded." << endl;
+		}
+		catch (IndexException& e)
+		{
+			cout << e.what() << endl;
+		}
+	}
+	return ifs;
+}
+
+vector<Movie*>& TaskPrinter::setUpMovies(){
+
+	ifstream ifs = setUpFileStream("movie metadata");
+
+	//Load in all movie metadata
+	string temp;
+	vector<Movie> movies;
+	while(getline(ifs, temp)){
+		movies.push_back(Movie(temp));
+	}
+	ifs.close();
+
+	cout << "All movie names loaded!" <<endl;
+	cout << "There are " << movies.size() << " movies!" << endl;
+
+	//Sort all movie metadata for log(n) access
+	sort(movies.begin(), movies.end());
+	cout << "Movies sorted" << endl;
+
+	cout << "Search for film 5463!" << endl;
+	pair<vector<Movie>::iterator, vector<Movie>::iterator> bounds = equal_range(movies.begin(), movies.end(), movies[5463]);
+	cout << movies[5463] << endl;
+	cout << *bounds.first << endl;
+
+
+	ifstream ifs2 = setUpFileStream("movie summaries");
+
+	//Load in movie summaries
+	string temp2;
+	while(getline(ifs2, temp2)){
+		unsigned int iD;
+		char c;
+		string description;
+		stringstream ss(temp2);
+		ss >> iD;
+		ss >> noskipws >> c;
+		getline(ss, description);
+
+		pair<vector<Movie>::iterator, vector<Movie>::iterator> bounds = equal_range(movies.begin(), movies.end(), Movie("", "", iD, Date(2010)));
+		if(bounds.second - bounds.first == 1){
+			bounds.first->setContent(description, true);
+		}
+		else{		//Ignore movie summaries that have no metadata.
+		}
+	}
+	ifs2.close();
+	cout << "Movie summaries loaded!\n";
+
+	vector<Movie*>* m2 = new vector<Movie*>;
+	//Remove metadata with no summary
+	for(vector<Movie>::iterator it = movies.begin(); it != movies.end();++it){
+		if(it->content() != ""){
+			m2->push_back(new Movie(*it));
+		}
+	}
+	movies.clear();
+
+	cout << "There are now " << m2->size() << " complete and sorted movies!" << endl;
+	return *m2;
+
+}
+
+DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords){
+	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size());
+	cout << "Initialized database" << endl;
+	short count = 0;
+	for (vector<Movie*>::const_iterator it = movies.begin(); it != movies.end(); ++it){
+		movieDatabase->addMovie(*it, stopwords);
+		++count;
+		if (count%10 == 0)
+			cout << count << " movies!" << endl;
+	}
+	return *movieDatabase;
 }

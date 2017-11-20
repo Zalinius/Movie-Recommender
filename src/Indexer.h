@@ -4,6 +4,7 @@
 #include "IndexItem.h"
 #include "Term.h"
 #include "QueryResult.h"
+#include <memory>
 #include <vector>
 #include <iostream>
 
@@ -46,6 +47,7 @@ protected:
 
 
 	virtual void createTerms(vector<string>, int docNo);
+	void createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword> stopwords);
 
 	static double computeScore(vector<double> squery, vector<double> docweight);
 	static void sortByScore(vector<QueryResult> & scores);

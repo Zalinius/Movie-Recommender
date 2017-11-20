@@ -1,4 +1,5 @@
 #include "Indexer.h"
+#include "Stopword.h"
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -158,6 +159,28 @@ double Indexer::computeScore(vector<double> squery, vector<double> docweight){
  */
 void Indexer::createTerms(vector<string> tokens, int docNo) {
 	for(vector<string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it){
+
+		Term newTerm(*it, docNo, fileAmount);
+
+		if(find(dictionary.begin(), dictionary.end(), newTerm) != dictionary.end()){
+			find(dictionary.begin(), dictionary.end(), newTerm)->termFrequencies.at(docNo)++;//increase term frequency count
+			if(find(dictionary.begin(), dictionary.end(), newTerm)->termFrequencies.at(docNo) == 1){
+				find(dictionary.begin(), dictionary.end(), newTerm)->documentFrequency++;
+			}
+		}
+		else{
+			dictionary.push_back(newTerm);
+		}
+	}
+}
+
+//used when you do not want to create terms for stopwords to save memory
+void Indexer::createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword> stopwords) {
+	for(vector<string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it){
+
+		string word = *it;
+		if ((*stopwords)(word))
+			continue;
 		Term newTerm(*it, docNo, fileAmount);
 
 		if(find(dictionary.begin(), dictionary.end(), newTerm) != dictionary.end()){

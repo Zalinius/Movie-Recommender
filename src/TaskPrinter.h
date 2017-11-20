@@ -9,6 +9,7 @@
 #include "Stopword.h"
 #include "DocumentIndexer.h"
 #include "SentenceIndexer.h"
+#include "Movie.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -25,13 +26,16 @@ class TaskPrinter
 		static vector<string>& setUpFiles();
 		static DocumentIndexer& setUpLibrary(vector<string>& fileNames);
 		static SentenceIndexer& setUpSentences(vector<string>& fileNames);
+		static DocumentIndexer& setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords);
 		static string readQuestion();	//belongs in TaskPrinter
+		static vector<Movie*>& setUpMovies();
 
 		static void printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, shared_ptr<Stopword> stopwords);
 		static void printWeightedIndex(DocumentIndexer library);
 		static void printLegend(const vector<string>& fileNames);
 		static void printQuery(DocumentIndexer library);
 	private:
+		static ifstream setUpFileStream(string desiredFile);
 		static size_t findn(int num);
 		static size_t longest(vector<Term> dictionary);
 };

@@ -11,6 +11,7 @@
 
 #include "Indexer.h"
 #include "Document.h"
+#include "Movie.h"
 #include <vector>
 #include <iostream>
 
@@ -29,6 +30,8 @@ public:
 
 	friend IndexItem & operator>> (Document *d, DocumentIndexer& idx);
 	friend IndexItem & operator>> (Sentence *s, DocumentIndexer& idx);
+
+	void addMovie(Movie *m, shared_ptr<Stopword> stopwords);
 
 
 protected:
