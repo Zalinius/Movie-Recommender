@@ -15,8 +15,6 @@
 #include <vector>
 #include <iomanip>
 
-static const string DOC_PATH = "docs/";//The path for the docs folder
-
 using namespace std;
 
 // ->Handles all the printing and formatting of the index, queries, etc.
@@ -25,16 +23,16 @@ using namespace std;
  * Read in stopwords, create the Stopword object which stores the list of stopwords
  * @return the newly created Stopword object
  */
-unique_ptr<Stopword> TaskPrinter::setUpStopwords() {
+shared_ptr<Stopword> TaskPrinter::setUpStopwords() {
 
-	unique_ptr<Stopword> stopwords;
+	shared_ptr<Stopword> stopwords;
 	bool done = false;
 	while (!done){
 		try{
 			string stopWordsFile;
 			cout << "Enter the stopwords file name: ";
 			cin >> stopWordsFile;
-			stopwords = make_unique<Stopword>(stopWordsFile.c_str());
+			stopwords = make_shared<Stopword>(stopWordsFile.c_str());
 			done = true;
 			cout << stopWordsFile << " loaded." << endl;
 		}
@@ -74,7 +72,7 @@ vector<string>& TaskPrinter::setUpFiles(){
 	vector<string>* fileNames = new vector<string>();
 	string name;
 	while(getline(fin, name)){
-		fileNames->push_back(DOC_PATH + name);
+		fileNames->push_back("docs/" + name);
 	}
 	fin.close();
 	cout << fileNames->size() << " file names acquired!\n" << endl;
@@ -243,7 +241,7 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
  * @param withoutStops whether of not stopwords will be printed
  * @param stopwords the object storing the stopwords
  */
-void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, unique_ptr<Stopword> stopwords){
+void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames, bool withoutStops, shared_ptr<Stopword> stopwords){
 	//Header
 	size_t longestWord = longest(library.getDictionary());
 	const string DICTIONARY = "Dictionary";
