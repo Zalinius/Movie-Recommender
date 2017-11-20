@@ -15,6 +15,10 @@
 
 using namespace std;
 
+/**
+ * An IndexItem derived class used to store information about a Movie.<br>
+ * It stores its Wikipedia ID, its title, its release date and its summary.<br>
+ */
 class Movie : public IndexItem{
 
 public:
