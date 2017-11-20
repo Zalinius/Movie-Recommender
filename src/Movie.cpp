@@ -8,6 +8,8 @@
 #include "Movie.h"
 #include "Date.h"
 #include <iomanip>
+#include <algorithm>
+#include <string>
 #include <sstream>
 
 using namespace std;
@@ -68,6 +70,14 @@ const string Movie::toString() const{
 
 bool operator < (const Movie &left, const Movie &right){
 	return left.iD < right.iD;
+}
+
+bool operator == (const Movie &left, const Movie &right){
+	string lowerLeft = left.title;
+	string lowerRight = right.title;
+	transform(lowerLeft.begin(), lowerLeft.end(), lowerLeft.begin(), ::tolower);
+	transform(lowerRight.begin(), lowerRight.end(), lowerRight.begin(), ::tolower);
+	return lowerLeft == lowerRight;
 }
 
 /*

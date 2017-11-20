@@ -18,7 +18,7 @@ using namespace std;
 
 int main(){
 	cout << "Task 4: Recommender!" << endl;
-	unique_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
+	shared_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
 
 	vector<Movie> movies;
 

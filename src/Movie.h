@@ -29,6 +29,7 @@ public:
 	const Date getReleaseDate() const;
 
 	friend bool operator < (const Movie &left, const Movie &right);
+	friend bool operator ==(const Movie &left, const Movie &right);
 
 protected:
 
