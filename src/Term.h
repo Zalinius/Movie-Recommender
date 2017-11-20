@@ -17,15 +17,15 @@ using namespace std;
 class Term{
 
 public:
-	Term(string term, unsigned int docNo, size_t fileAmount);
+	Term(string term, unsigned short docNo, size_t fileAmount);
 
 	string term; //The actual word being represented
 
-	unsigned int documentFrequency; //The document frequency
-	vector<unsigned int> termFrequencies; //The termFrequency per document, with the index being the Doc#
+	unsigned short documentFrequency; //The document frequency
+	vector<unsigned short> termFrequencies; //The termFrequency per document, with the index being the Doc#
 
 	//Move to the document class, filled with the tf-idf weight for each token (sort tokens first?)
-	vector<double> weight; //The tf-idf weight per Document, with the index being the Doc#
+	vector<float> weight; //The tf-idf weight per Document, with the index being the Doc#
 
 	friend const bool operator== (const Term & left, const Term & right);
 	friend const bool operator< (const Term & left, const Term & right);

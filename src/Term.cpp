@@ -13,13 +13,13 @@
  *  @param docNo The file the word was found in
  *  @param fileAmount the amount of files being processed, for sizing the vectors
  */
-Term::Term(string term, unsigned int docNo, size_t fileAmount)
+Term::Term(string term, unsigned short docNo, size_t fileAmount)
 :term(term)
 {
 	documentFrequency = 1;
 	termFrequencies.resize(fileAmount);
 	weight.resize(fileAmount);
-	for(vector<unsigned int>::iterator it = termFrequencies.begin(); it != termFrequencies.end(); ++it){
+	for(vector<unsigned short>::iterator it = termFrequencies.begin(); it != termFrequencies.end(); ++it){
 		*it = 0;
 	}
 
