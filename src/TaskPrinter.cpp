@@ -88,9 +88,9 @@ vector<string>& TaskPrinter::setUpFiles(){
  * @param fileNames the vector<string> of file names to be read from
  * @return a DOcumentIndexer which stores the documents found from fileNames
  */
-DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames){
+DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames, shared_ptr<Stopword> stopwords){
 
-	DocumentIndexer* library = new DocumentIndexer(fileNames.size());
+	DocumentIndexer* library = new DocumentIndexer(fileNames.size(), stopwords);
 	for (vector<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it){
 		try{
 		Document* d = new Document(*it,true);
@@ -110,6 +110,7 @@ DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames){
  */
 void TaskPrinter::printQuery(DocumentIndexer library)
 {
+	shared_ptr<Stopword> stopwords = library.getStopwords();
 	bool newQuery;
 	do
 	{
@@ -180,7 +181,7 @@ string TaskPrinter::readQuestion() {
  * @param fileNames the vector<string> of file names to be read from
  * @return a SentenceIndexer which stores the documents found from fileNames
  */
-SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
+SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames, shared_ptr<Stopword> stopwords){
 	vector<Document*> docs;
 	int sentenceCount = 0;
 	for (vector<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it){
@@ -194,7 +195,7 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
 		}
 	}
 
-	SentenceIndexer* library = new SentenceIndexer(sentenceCount);
+	SentenceIndexer* library = new SentenceIndexer(sentenceCount, stopwords);
 
 	unsigned short docNo = 0;
 	for(vector<Document*>::iterator it = docs.begin(); it != docs.end(); ++it){
@@ -449,7 +450,7 @@ vector<Movie*>& TaskPrinter::setUpMovies(){
 }
 
 DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords){
-	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size());
+	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size(), stopwords);
 	cout << "Initialized database" << endl;
 	short count = 0;
 	for (vector<Movie*>::const_iterator it = movies.begin(); it != movies.end(); ++it){

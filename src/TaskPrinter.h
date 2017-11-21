@@ -24,8 +24,8 @@ class TaskPrinter
 	public:
 		static shared_ptr<Stopword> setUpStopwords();
 		static vector<string>& setUpFiles();
-		static DocumentIndexer& setUpLibrary(vector<string>& fileNames);
-		static SentenceIndexer& setUpSentences(vector<string>& fileNames);
+		static DocumentIndexer& setUpLibrary(vector<string>& fileNames, shared_ptr<Stopword> stopwords);
+		static SentenceIndexer& setUpSentences(vector<string>& fileNames, shared_ptr<Stopword> stopwords);
 		static DocumentIndexer& setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords);
 		static string readQuestion();	//belongs in TaskPrinter
 		static vector<Movie*>& setUpMovies();

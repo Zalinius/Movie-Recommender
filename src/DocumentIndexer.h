@@ -23,7 +23,7 @@ class DocumentIndexer : public Indexer {
 
 public:
 
-	DocumentIndexer(int fileAmount);
+	DocumentIndexer(int fileAmount, shared_ptr<Stopword> stopwords);
 	virtual ~DocumentIndexer();
 
 	vector<QueryResult>& query(string s, int n = 10);

@@ -7,16 +7,11 @@
 #include <algorithm>
 #include <math.h>
 
-/**
- * Default constructor, keeps the compiler happy
- */
-SentenceIndexer::SentenceIndexer() {}
-
 
 /**
  * Parameterized constructor, calls the constructor for Indexer with the argument fileAmount
  */
-SentenceIndexer::SentenceIndexer(int fileAmount) : Indexer(fileAmount) {
+SentenceIndexer::SentenceIndexer(int fileAmount, shared_ptr<Stopword> stopwords) : Indexer(fileAmount, stopwords) {
 
 }
 
@@ -45,7 +40,7 @@ IndexItem & operator>> (Sentence *s, SentenceIndexer& idx){
 	idx.getIndex().push_back(s);
 	//idx.setNormalized(false);
 
-	shared_ptr<Stopword> stopwords;
+	shared_ptr<Stopword> stopwords = idx.getStopwords();
 
 	idx.createTerms(s->getTokens(), idx.getIndex().size()-1, stopwords, false);
 
@@ -81,8 +76,8 @@ vector<QueryResult>& SentenceIndexer::query(string s, int n){
 	Sentence q(s, true, 0);
 
 	Sentence* q1 = &q;
-
-	SentenceIndexer queryIndex(getFileAmount());
+	shared_ptr<Stopword> stopwords = this->getStopwords();
+	SentenceIndexer queryIndex(getFileAmount(), stopwords);
 
 	//Need to give queryIndex the same dictionary of Terms, but with its own counts & weights (set all to zero first, then read in the query)
 	queryIndex.setDictionary(this->getDictionary());

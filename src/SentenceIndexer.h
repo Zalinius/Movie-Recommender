@@ -18,8 +18,7 @@
 class SentenceIndexer : public Indexer {
 
 public:
-	SentenceIndexer();
-	SentenceIndexer(int fileAmount);
+	SentenceIndexer(int fileAmount, shared_ptr<Stopword> stopwords);
 	virtual ~SentenceIndexer();
 
 	virtual string toString() const;

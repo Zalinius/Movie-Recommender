@@ -16,7 +16,7 @@ using namespace std;
  * Parameterized constructor, initializes an empty vector of Documents, an empty vector of Terms,
  * and sets the Indexer's normalized value to false to prevent meaningless queries
  */
-DocumentIndexer::DocumentIndexer(int fileAmount) : Indexer(fileAmount) {
+DocumentIndexer::DocumentIndexer(int fileAmount, shared_ptr<Stopword> stopwords) : Indexer(fileAmount, stopwords) {
 
 }
 
@@ -44,7 +44,7 @@ string DocumentIndexer::toString() const{
 IndexItem & operator>> (Document *d, DocumentIndexer& idx){
 	idx.getIndex().push_back(d);
 
-	shared_ptr<Stopword> stopwords;
+	shared_ptr<Stopword> stopwords = idx.getStopwords();
 
 	idx.createTerms(d->getTokens(), idx.getIndex().size()-1, stopwords, false);
 
@@ -58,7 +58,7 @@ IndexItem & operator>> (Document *d, DocumentIndexer& idx){
 IndexItem & operator>> (Sentence *s, DocumentIndexer& idx){
 	idx.getIndex().push_back(s);
 
-	shared_ptr<Stopword> stopwords;
+	shared_ptr<Stopword> stopwords = idx.getStopwords();
 
 	idx.createTerms(s->getTokens(), 0, stopwords, true);
 
@@ -86,8 +86,9 @@ vector<QueryResult>& DocumentIndexer::query(string s, int n){
 	Sentence q(s, true, 0);
 
 	Sentence* q1 = &q;
+	shared_ptr<Stopword> stopwords = this->getStopwords();
 
-	DocumentIndexer queryIndex(getFileAmount());
+	DocumentIndexer queryIndex(getFileAmount(), stopwords);
 
 	//Need to give queryIndex the same dictionary of Terms, but with its own counts & weights (set all to zero first, then read in the query)
 	queryIndex.setDictionary(this->getDictionary());

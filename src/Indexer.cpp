@@ -7,16 +7,11 @@
 
 using namespace std;
 
-/**
- * Default constructor, generally sets values to their 0
- */
-Indexer::Indexer() :  dictionary(set<Term>()), index(vector<IndexItem*>()), fileAmount(0){}
-
 
 /**
  * Parameterized constructor, takes a specified size for the parameter fileAmount
  */
-Indexer::Indexer(int fileAmount) :  dictionary(set<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount){}
+Indexer::Indexer(int fileAmount, shared_ptr<Stopword> stopwords) :  dictionary(set<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount), stopwords(stopwords){}
 
 /**
  * Destructor
@@ -65,19 +60,10 @@ unsigned int Indexer::getFileAmount(){
 	return fileAmount;
 }
 
-/**
- * @return the bool normalized
- */
-//bool Indexer::getNormalized() const{
-//	return normalized;
-//}
-//
-///**
-// * @param facts the bool value that normalized is being set to
-// */
-//void Indexer::setNormalized(bool facts){
-//	normalized = facts;
-//}
+
+shared_ptr<Stopword> Indexer::getStopwords(){
+	return stopwords;
+}
 
 /**
  * @return the vector<IndexItem*> index
