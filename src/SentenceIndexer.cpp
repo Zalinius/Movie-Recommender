@@ -11,7 +11,7 @@
 /**
  * Parameterized constructor, calls the constructor for Indexer with the argument fileAmount
  */
-SentenceIndexer::SentenceIndexer(int fileAmount, shared_ptr<Stopword> stopwords) : Indexer(fileAmount, stopwords) {
+SentenceIndexer::SentenceIndexer(int fileAmount, shared_ptr<Stopword> stopwords, bool omitStopwords) : Indexer(fileAmount, stopwords, omitStopwords) {
 
 }
 
@@ -41,8 +41,9 @@ IndexItem & operator>> (Sentence *s, SentenceIndexer& idx){
 	//idx.setNormalized(false);
 
 	shared_ptr<Stopword> stopwords = idx.getStopwords();
+	bool omitStopwords = idx.getStopBool();
 
-	idx.createTerms(s->getTokens(), idx.getIndex().size()-1, stopwords, false);
+	idx.createTerms(s->getTokens(), idx.getIndex().size()-1, stopwords, omitStopwords);
 
 	return *s;
 }
@@ -59,7 +60,7 @@ IndexItem & operator>> (Sentence *s, SentenceIndexer& idx){
  * @param n the word count limit for the essay being generated
  * @return a vector<QueryResult> of the top matching sentences in a coherent order
  */
-vector<QueryResult>& SentenceIndexer::query(string s, int n){
+vector<QueryResult>& SentenceIndexer::query(string s, unsigned int n){
 
 //	try{
 //		if(getNormalized() == false)
@@ -77,7 +78,7 @@ vector<QueryResult>& SentenceIndexer::query(string s, int n){
 
 	Sentence* q1 = &q;
 	shared_ptr<Stopword> stopwords = this->getStopwords();
-	SentenceIndexer queryIndex(getFileAmount(), stopwords);
+	SentenceIndexer queryIndex(getFileAmount(), stopwords, false);
 
 	//Need to give queryIndex the same dictionary of Terms, but with its own counts & weights (set all to zero first, then read in the query)
 	queryIndex.setDictionary(this->getDictionary());
@@ -99,10 +100,10 @@ vector<QueryResult>& SentenceIndexer::query(string s, int n){
 	double h = getIndex().size();
 	for(set<Term>::const_iterator it = queryIndex.getDictionary().begin(); it != queryIndex.getDictionary().end(); ++it){	//iterate through all terms
 			//squery.push_back(queryIndex.getDictionary().at(i).weight.at(0));
-			if (q1->termFrequency(it->term) == 0)
+			if (q1->termFrequency(it->getWord()) == 0)
 				squery.push_back(0);
 			else{
-				float score = (1+log(q1->termFrequency(it->term)))*log(h/(float)it->documentFrequency);
+				float score = (1+log(q1->termFrequency(it->getWord())))*log(h/(float)it->getDocumentFrequency());
 				cout << *it << " score: " << score << endl;
 				squery.push_back(score);
 			}
@@ -116,11 +117,11 @@ vector<QueryResult>& SentenceIndexer::query(string s, int n){
 			vector<float> docweight;
 			for(set<Term>::const_iterator it = queryIndex.getDictionary().begin(); it != queryIndex.getDictionary().end(); ++it){ //iterate through each term
 				//docweight.push_back(this->getDictionary()[j].weight[i]);
-				if (q1->termFrequency(it->term) == 0)
+				if (q1->termFrequency(it->getWord()) == 0)
 					docweight.push_back(0);
 				else
 				{
-					float score = (1+log(q1->termFrequency(it->term)))*log(h/(float)it->documentFrequency);
+					float score = (1+log(q1->termFrequency(it->getWord())))*log(h/(float)it->getDocumentFrequency());
 					docweight.push_back(score);
 				}
 			}

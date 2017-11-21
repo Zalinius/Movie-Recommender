@@ -19,7 +19,7 @@ using namespace std;
 class Indexer {
 
 public:
-	Indexer(int fileAmount, shared_ptr<Stopword> stopwords);
+	Indexer(int fileAmount, shared_ptr<Stopword> stopwords, bool omitStopwords);
 	virtual ~Indexer();
 
 	virtual string toString() const;
@@ -34,10 +34,11 @@ public:
 	void sortDict();
 	set<Term>& getDictionary();
 	shared_ptr<Stopword> getStopwords();
+	bool getStopBool();
 
 protected:
 
-	virtual vector<QueryResult>& query(string s, int n) = 0;
+	virtual vector<QueryResult>& query(string s, unsigned int n) = 0;
 	unsigned int size() const;
 	//bool getNormalized() const;
 	//void setNormalized(bool facts);
@@ -58,6 +59,7 @@ private:
 
 	unsigned int fileAmount;
 	shared_ptr<Stopword> stopwords;
+	bool omitStopwords;
 
 
 };

@@ -23,15 +23,15 @@ class DocumentIndexer : public Indexer {
 
 public:
 
-	DocumentIndexer(int fileAmount, shared_ptr<Stopword> stopwords);
+	DocumentIndexer(int fileAmount, shared_ptr<Stopword> stopwords, bool omitStopwords);
 	virtual ~DocumentIndexer();
 
-	vector<QueryResult>& query(string s, int n = 10);
+	vector<QueryResult>& query(string s, unsigned int n = 10);
+	vector<QueryResult>& movieQuery(IndexItem* m, unsigned int n = 10);
 
 	friend IndexItem & operator>> (Document *d, DocumentIndexer& idx);
 	friend IndexItem & operator>> (Sentence *s, DocumentIndexer& idx);
-
-	void addMovie(Movie *m, shared_ptr<Stopword> stopwords);
+	friend IndexItem & operator>> (Movie *m, DocumentIndexer& idx);
 
 
 protected:

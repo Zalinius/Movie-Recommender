@@ -24,7 +24,7 @@ class TaskPrinter
 	public:
 		static shared_ptr<Stopword> setUpStopwords();
 		static vector<string>& setUpFiles();
-		static DocumentIndexer& setUpLibrary(vector<string>& fileNames, shared_ptr<Stopword> stopwords);
+		static DocumentIndexer& setUpLibrary(vector<string>& fileNames, shared_ptr<Stopword> stopwords, bool omitStopwords);
 		static SentenceIndexer& setUpSentences(vector<string>& fileNames, shared_ptr<Stopword> stopwords);
 		static DocumentIndexer& setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords);
 		static string readQuestion();	//belongs in TaskPrinter
@@ -34,6 +34,7 @@ class TaskPrinter
 		static void printWeightedIndex(DocumentIndexer library);
 		static void printLegend(const vector<string>& fileNames);
 		static void printQuery(DocumentIndexer library);
+		static void printMovieQuery(DocumentIndexer& movieDatabase);
 	private:
 		static ifstream setUpFileStream(string desiredFile);
 		static size_t findn(int num);

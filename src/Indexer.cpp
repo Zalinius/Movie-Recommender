@@ -1,5 +1,6 @@
 #include "Indexer.h"
 #include "Stopword.h"
+#include "Term.h"
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -11,7 +12,7 @@ using namespace std;
 /**
  * Parameterized constructor, takes a specified size for the parameter fileAmount
  */
-Indexer::Indexer(int fileAmount, shared_ptr<Stopword> stopwords) :  dictionary(set<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount), stopwords(stopwords){}
+Indexer::Indexer(int fileAmount, shared_ptr<Stopword> stopwords, bool omitStopwords) :  dictionary(set<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount), stopwords(stopwords), omitStopwords(omitStopwords){}
 
 /**
  * Destructor
@@ -63,6 +64,10 @@ unsigned int Indexer::getFileAmount(){
 
 shared_ptr<Stopword> Indexer::getStopwords(){
 	return stopwords;
+}
+
+bool Indexer::getStopBool(){
+	return omitStopwords;
 }
 
 /**
@@ -138,12 +143,12 @@ void Indexer::createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword>
 	string currentToken = "";
 	for(vector<string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it){
 
-		Term newTerm(*it, docNo, fileAmount);
-		if (currentToken == newTerm.term || (omitStopwords && (*stopwords)(*it)))
+		Term newTerm(*it);
+		if (currentToken == newTerm.getWord() || (omitStopwords && (*stopwords)(*it)))
 			continue;
 
 		pair<set<Term>::iterator, bool> info = dictionary.insert(newTerm);
-		currentToken = newTerm.term;
+		currentToken = newTerm.getWord();
 		if (!info.second)	//the term already exists in the dictionary,
 			info.first->incrementDocumentFrequency();
 	}

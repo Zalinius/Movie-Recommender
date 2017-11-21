@@ -18,14 +18,14 @@
 class SentenceIndexer : public Indexer {
 
 public:
-	SentenceIndexer(int fileAmount, shared_ptr<Stopword> stopwords);
+	SentenceIndexer(int fileAmount, shared_ptr<Stopword> stopwords, bool omitStopwords);
 	virtual ~SentenceIndexer();
 
 	virtual string toString() const;
 
 	friend IndexItem & operator>> (Sentence *s, SentenceIndexer& idx);
 
-	vector<QueryResult>& query(string s, int n = 500);
+	vector<QueryResult>& query(string s, unsigned int n = 500);
 
 private:
 

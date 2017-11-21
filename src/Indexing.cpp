@@ -17,7 +17,7 @@
 //
 //	shared_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
 //
-//	DocumentIndexer library = TaskPrinter::setUpLibrary(fileNames, stopwords);
+//	DocumentIndexer library = TaskPrinter::setUpLibrary(fileNames, stopwords, false);
 //
 //
 //	TaskPrinter::printIndex(library, fileNames, false, stopwords);

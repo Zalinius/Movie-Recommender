@@ -80,6 +80,19 @@ const string Movie::toString() const{
 	return debugString.str();
 }
 
+const string Movie::getName() const{
+	return title;
+}
+
+unsigned int Movie::getID() const{
+	return iD;
+}
+
+const Date Movie::getReleaseDate() const{
+	return releaseDate;
+}
+
+
 /**
  * Compares movie ID for order
  */
@@ -96,4 +109,8 @@ bool operator == (const Movie &left, const Movie &right){
 	transform(lowerLeft.begin(), lowerLeft.end(), lowerLeft.begin(), ::tolower);
 	transform(lowerRight.begin(), lowerRight.end(), lowerRight.begin(), ::tolower);
 	return lowerLeft == lowerRight;
+}
+
+bool Movie::operator () (const Movie* m) const{
+	return *this == *m;
 }

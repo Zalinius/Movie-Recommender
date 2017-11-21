@@ -34,6 +34,7 @@ public:
 
 	friend bool operator < (const Movie &left, const Movie &right);
 	friend bool operator ==(const Movie &left, const Movie &right);
+	bool operator() (const Movie* m) const;
 
 protected:
 

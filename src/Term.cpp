@@ -17,6 +17,10 @@ Term::Term(string term)
 	documentFrequency = 1;
 }
 
+const string& Term::getWord() const{
+	return term;
+}
+
 void Term::incrementDocumentFrequency() const{
 	++documentFrequency;
 }

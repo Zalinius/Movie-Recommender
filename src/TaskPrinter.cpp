@@ -15,6 +15,7 @@
 #include <vector>
 #include <iomanip>
 #include <math.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -88,9 +89,9 @@ vector<string>& TaskPrinter::setUpFiles(){
  * @param fileNames the vector<string> of file names to be read from
  * @return a DOcumentIndexer which stores the documents found from fileNames
  */
-DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames, shared_ptr<Stopword> stopwords){
+DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames, shared_ptr<Stopword> stopwords, bool omitStopwords){
 
-	DocumentIndexer* library = new DocumentIndexer(fileNames.size(), stopwords);
+	DocumentIndexer* library = new DocumentIndexer(fileNames.size(), stopwords, omitStopwords);
 	for (vector<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it){
 		try{
 		Document* d = new Document(*it,true);
@@ -115,14 +116,13 @@ void TaskPrinter::printQuery(DocumentIndexer library)
 	do
 	{
 		string s;
-		int n;
+		unsigned int n;
 		cout << "Enter number of desired search results: ";
 		cin >> n;
 		cout << "Enter string to be queried: ";
 		getline(cin, s);
 		s = "";
 		getline(cin, s);
-
 
 		vector<QueryResult>& result = library.query(s, n);
 		cout << "\nQuery successful" << endl;
@@ -195,7 +195,7 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames, shared_p
 		}
 	}
 
-	SentenceIndexer* library = new SentenceIndexer(sentenceCount, stopwords);
+	SentenceIndexer* library = new SentenceIndexer(sentenceCount, stopwords, true);
 
 	unsigned short docNo = 0;
 	for(vector<Document*>::iterator it = docs.begin(); it != docs.end(); ++it){
@@ -248,16 +248,16 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 		int docCount = 1;
 		for(set<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){	//iterate through each term
 
-			string word = it->term;
+			string word = it->getWord();
 			if(!((*stopwords)(word) && withoutStops)){
-				cout << left << setw(longestWord + 1) << " " + it->term;
+				cout << left << setw(longestWord + 1) << " " + word;
 				for(vector<IndexItem*>::const_iterator it2 = docIndex.begin(); it2 != docIndex.end(); ++it2){	//iterate through each document
-					unsigned short toPrint = (*it2)->termFrequency(it->term);
+					unsigned short toPrint = (*it2)->termFrequency(word);
 					cout << right << setw(findn(docCount) + 4) << toPrint;	//width is +4 for " Doc"
 					noStopWordTotals.at(docCount-1) += toPrint;
 					++docCount;
 				}
-				cout << setw(findn(docCount) + 4) << right << it->documentFrequency;
+				cout << setw(findn(docCount) + 4) << right << it->getDocumentFrequency();
 				cout << "\n";
 				docCount = 1;
 			}
@@ -297,14 +297,14 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 
 	float h = library.getIndex().size();
 	for(set<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){
-		string word = it->term;
+		string word = it->getWord();
 		if(!(withoutStops && (*stopwords)(word))){
 			cout << left << setw(longestWord + 1) << " " + word;
 			cout.flush();
 			for(vector<IndexItem*>::const_iterator it2 = docIndex.begin(); it2 != docIndex.end(); ++it2){
 				float score = 0;
 				if ((*it2)->termFrequency(word) != 0)
-					score = (1+log((*it2)->termFrequency(word)))*log(h/(float)it->documentFrequency);
+					score = (1+log((*it2)->termFrequency(word)))*log(h/(float)it->getDocumentFrequency());
 
 				cout << right << setw(findn(docCount) + 4) << setprecision(2) << score;	//width is +4 for " Doc"
 				cout.flush();
@@ -358,8 +358,8 @@ size_t TaskPrinter::findn(int num)
 size_t TaskPrinter::longest(set<Term> dictionary){
 	size_t longest = 0;
 	for(set<Term>::const_iterator it = dictionary.begin(); it != dictionary.end(); ++it){
-		if(it->term.length() > longest)
-			longest = it->term.length();
+		if(it->getWord().length() > longest)
+			longest = it->getWord().length();
 	}
 	return longest;
 }
@@ -450,14 +450,64 @@ vector<Movie*>& TaskPrinter::setUpMovies(){
 }
 
 DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords){
-	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size(), stopwords);
+	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size(), stopwords, true);
 	cout << "Initialized database" << endl;
-	short count = 0;
+	unsigned short count = 0;
 	for (vector<Movie*>::const_iterator it = movies.begin(); it != movies.end(); ++it){
-		movieDatabase->addMovie(*it, stopwords);
+		*it >> *movieDatabase;
 		++count;
-		if (count%10 == 0)
+		if (count%10000 == 0)
 			cout << count << " movies!" << endl;
 	}
 	return *movieDatabase;
+}
+
+void TaskPrinter::printMovieQuery(DocumentIndexer& movieDatabase){
+	shared_ptr<Stopword> stopwords = movieDatabase.getStopwords();
+		bool newQuery;
+		do
+		{
+			string s;
+			vector<IndexItem*>::const_iterator found;
+			try{
+			cout << "Enter the name of your movie: ";
+			getline(cin, s);
+			s = "";
+			getline(cin, s);
+
+			found = find_if(movieDatabase.getIndex().cbegin(), movieDatabase.getIndex().cend(),
+
+			[&s] (IndexItem* item) {
+				return (dynamic_cast<Movie*>(item))->getName() == s;
+			}
+			);
+			if (found == movieDatabase.getIndex().cend())
+				throw IndexException(s);
+			}
+			catch (IndexException& e)
+			{
+				cout << e.what() << endl;
+				continue;
+			}
+
+			unsigned int n;
+			cout << "Enter number of desired search results: ";
+			cin >> n;
+
+			vector<QueryResult>& result = movieDatabase.movieQuery(*found, n);
+
+			for (unsigned int i = 0; i != result.size(); ++i)
+			{
+				cout << (i+1) << "- File: " << dynamic_cast<Document*>(result[i].getI())->getFileName() << ", score: " << result[i].getScore() << endl;
+			}
+
+			char answer;
+			cout << "\nFeeling brave enough for a new query? (Y/N): ";
+			cin >> answer;
+			if (tolower(answer) == 'n')
+				newQuery = false;
+			else
+				newQuery = true;
+
+		} while (newQuery);
 }
