@@ -21,10 +21,11 @@ public:
 
 	string term; //The actual word being represented
 
-	unsigned short documentFrequency; //The document frequency
-	vector<unsigned short> termFrequencies; //The termFrequency per document, with the index being the Doc#
+	mutable unsigned short documentFrequency; //The document frequency
+	//vector<unsigned short> termFrequencies; //The termFrequency per document, with the index being the Doc#
 
 	void incrementDocumentFrequency() const;	//doesn't change the ordering on the object in the set
+	unsigned short getDocumentFrequency() const;
 
 	friend const bool operator== (const Term & left, const Term & right);
 	friend const bool operator< (const Term & left, const Term & right);

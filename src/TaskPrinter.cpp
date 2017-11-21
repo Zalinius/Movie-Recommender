@@ -97,12 +97,9 @@ DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames){
 		d >> *library;
 		}
 		catch (IndexException& e){
-			//do nothing, this
+			//do nothing, this shouldn't actually ever happen
 		}
 	}
-
-	library->sortDict();
-	//library->normalize();
 
 	return *library;
 }
@@ -243,18 +240,20 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 	cout << "\n";
 
 	vector<unsigned short> noStopWordTotals(fileNames.size());
-	vector<Term> dict = library.getDictionary();
+	set<Term> dict = library.getDictionary();
+	vector<IndexItem*> docIndex = library.getIndex();
 	//Printing the words and counts
 	{
 		int docCount = 1;
-		for(vector<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){
+		for(set<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){	//iterate through each term
 
 			string word = it->term;
 			if(!((*stopwords)(word) && withoutStops)){
 				cout << left << setw(longestWord + 1) << " " + it->term;
-				for(vector<unsigned short>::const_iterator it2 = it->termFrequencies.begin(); it2 != it->termFrequencies.end(); ++it2){
-					cout << right << setw(findn(docCount) + 4) << *it2;	//width is +4 for " Doc"
-					noStopWordTotals.at(docCount-1) += *it2;
+				for(vector<IndexItem*>::const_iterator it2 = docIndex.begin(); it2 != docIndex.end(); ++it2){	//iterate through each document
+					unsigned short toPrint = (*it2)->termFrequency(it->term);
+					cout << right << setw(findn(docCount) + 4) << toPrint;	//width is +4 for " Doc"
+					noStopWordTotals.at(docCount-1) += toPrint;
 					++docCount;
 				}
 				cout << setw(findn(docCount) + 4) << right << it->documentFrequency;
@@ -295,21 +294,20 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 
 	docCount = 1;
 
-	for(vector<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){
+	float h = library.getIndex().size();
+	for(set<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){
 		string word = it->term;
-		if(word == "")
-			cout << "**asshole**" << endl;
 		if(!(withoutStops && (*stopwords)(word))){
 			cout << left << setw(longestWord + 1) << " " + word;
 			cout.flush();
-			for(unsigned int j = 0; j != fileNames.size(); ++j){
+			for(vector<IndexItem*>::const_iterator it2 = docIndex.begin(); it2 != docIndex.end(); ++it2){
 				float score = 0;
-				if (it->termFrequencies[j] != 0)
-					score = (((1+log(double(it->termFrequencies[j])))*log(double(library.getIndex().size())/double(it->documentFrequency))));
+				if ((*it2)->termFrequency(word) != 0)
+					score = (1+log((*it2)->termFrequency(word)))*log(h/(float)it->documentFrequency);
 
 				cout << right << setw(findn(docCount) + 4) << setprecision(2) << score;	//width is +4 for " Doc"
 				cout.flush();
-				noStopWordTotals.at(docCount-1) += it->termFrequencies[j];
+				noStopWordTotals.at(docCount-1) += (*it2)->termFrequency(word);
 				++docCount;
 			}
 			cout << "\n";
@@ -356,9 +354,9 @@ size_t TaskPrinter::findn(int num)
  * @param dictionay the dictionary whose entries are checked
  * @return the number of digits in the longest word in the dictionary
  */
-size_t TaskPrinter::longest(vector<Term> dictionary){
+size_t TaskPrinter::longest(set<Term> dictionary){
 	size_t longest = 0;
-	for(vector<Term>::const_iterator it = dictionary.begin(); it != dictionary.end(); ++it){
+	for(set<Term>::const_iterator it = dictionary.begin(); it != dictionary.end(); ++it){
 		if(it->term.length() > longest)
 			longest = it->term.length();
 	}

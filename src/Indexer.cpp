@@ -108,13 +108,6 @@ unsigned int Indexer::size() const{
 }
 
 /**
- * Sorts the caling object's dictionary in alphabetic order
- */
-void Indexer::sortDict(){
-	sort(dictionary.begin(), dictionary.end());
-}
-
-/**
  * Helper function used in query(), sorts the results of the document scores from greatest to least
  * scores: a vector of QueryResult objects to be sorted
  * return: sorted version of scores vector

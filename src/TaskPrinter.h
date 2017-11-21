@@ -37,7 +37,7 @@ class TaskPrinter
 	private:
 		static ifstream setUpFileStream(string desiredFile);
 		static size_t findn(int num);
-		static size_t longest(vector<Term> dictionary);
+		static size_t longest(set<Term> dictionary);
 };
 
 #endif
