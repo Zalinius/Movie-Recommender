@@ -58,10 +58,9 @@ const string Document::getText(string file) throw(IndexException){
 	ifstream docIn;
 
 	docIn = ifstream(file.c_str());
-	if(!docIn){
-		cout << "thru" << endl;
+	if(!docIn)
 		throw IndexException(file);
-	}
+
 	string text;
 	char temp;
 	while(docIn >> noskipws >> temp){

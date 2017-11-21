@@ -18,7 +18,7 @@ Term::Term(string term, unsigned short docNo, size_t fileAmount)
 {
 	documentFrequency = 1;
 	termFrequencies.resize(fileAmount);
-	weight.resize(fileAmount);
+	//weight.resize(fileAmount);
 	for(vector<unsigned short>::iterator it = termFrequencies.begin(); it != termFrequencies.end(); ++it){
 		*it = 0;
 	}

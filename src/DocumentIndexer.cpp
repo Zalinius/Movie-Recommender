@@ -43,7 +43,7 @@ string DocumentIndexer::toString() const{
  */
 IndexItem & operator>> (Document *d, DocumentIndexer& idx){
 	idx.getIndex().push_back(d);
-	idx.setNormalized(false);
+	//idx.setNormalized(false);
 
 	idx.createTerms(d->getTokens(), idx.getIndex().size()-1);
 
@@ -56,7 +56,7 @@ IndexItem & operator>> (Document *d, DocumentIndexer& idx){
  */
 IndexItem & operator>> (Sentence *s, DocumentIndexer& idx){
 	idx.getIndex().push_back(s);
-	idx.setNormalized(false);
+	//idx.setNormalized(false);
 
 	idx.createTerms(s->getTokens(), 0);
 
@@ -65,7 +65,7 @@ IndexItem & operator>> (Sentence *s, DocumentIndexer& idx){
 
 void DocumentIndexer::addMovie(Movie *m, shared_ptr<Stopword> stopwords){
 	getIndex().push_back(m);
-	setNormalized(false);
+	//setNormalized(false);
 
 	createTerms(m->getTokens(), 0, stopwords);
 }
@@ -78,14 +78,14 @@ void DocumentIndexer::addMovie(Movie *m, shared_ptr<Stopword> stopwords){
  * return: the top n results (document names and scores) which best match the query
  */
 vector<QueryResult>& DocumentIndexer::query(string s, int n){
-	try{
-		if(getNormalized() == false)
-			throw NON_NORMALIZED_INDEX;
-	}
-	catch (EXCEPTIONS & e){
-		cout << "Index is not normalized";
-		exit(1);
-	}
+//	try{
+//		if(getNormalized() == false)
+//			throw NON_NORMALIZED_INDEX;
+//	}
+//	catch (EXCEPTIONS & e){
+//		cout << "Index is not normalized";
+//		exit(1);
+//	}
 
 	Indexer::sortDict();
 
@@ -113,19 +113,34 @@ vector<QueryResult>& DocumentIndexer::query(string s, int n){
 
 
 	queryIndex.getIndex().resize(getFileAmount());	//Ensure queryIndex and the calling Indexer are the same size
-	queryIndex.normalize();
+	//queryIndex.normalize();
 
-	for(unsigned int i = 0; i != this->getDictionary().size(); ++i){
-		squery.push_back(queryIndex.getDictionary().at(i).weight.at(0));		//Fill squery, the query's weight vector
+	double h = getIndex().size();
+	for(unsigned int i = 0; i != this->getDictionary().size(); ++i){	//iterate through all terms
+			//squery.push_back(queryIndex.getDictionary().at(i).weight.at(0));
+			if (queryIndex.getDictionary()[i].termFrequencies[0] == 0)
+				squery.push_back(0);
+			else{
+				float score = (1+log(queryIndex.getDictionary()[i].termFrequencies[0]))*log(h/(double)queryIndex.getDictionary()[i].documentFrequency);
+				cout << this->getDictionary()[i] << " score: " << score << endl;
+				squery.push_back(score);
+			}
+			//Fill squery, the query's weight vector
 	}
-
 	//Repeat the squery procedure for each Document and calculate each Document's score
 
 	vector<QueryResult> scores;
 	for(unsigned int i = 0; i != this->size(); ++i){	//iterate through each document
 		vector<double> docweight;
 		for(unsigned int j = 0; j != this->getDictionary().size(); ++j){ //iterate through each term
-			docweight.push_back(this->getDictionary()[j].weight[i]);
+			//docweight.push_back(this->getDictionary()[j].weight[i]);
+			if (getDictionary()[j].termFrequencies[i] == 0)
+				docweight.push_back(0);
+			else
+			{
+				double score = (1+log(getDictionary()[j].termFrequencies[i]))*log(h/(double)getDictionary()[j].documentFrequency);
+				docweight.push_back(score);
+			}
 		}
 		QueryResult k(getIndex()[i], computeScore(squery, docweight));
 		scores.push_back(k);

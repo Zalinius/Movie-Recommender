@@ -10,13 +10,13 @@ using namespace std;
 /**
  * Default constructor, generally sets values to their 0
  */
-Indexer::Indexer() :  dictionary(vector<Term>()), index(vector<IndexItem*>()), fileAmount(0), normalized(false){}
+Indexer::Indexer() :  dictionary(vector<Term>()), index(vector<IndexItem*>()), fileAmount(0){}
 
 
 /**
  * Parameterized constructor, takes a specified size for the parameter fileAmount
  */
-Indexer::Indexer(int fileAmount) :  dictionary(vector<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount), normalized(false){}
+Indexer::Indexer(int fileAmount) :  dictionary(vector<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount){}
 
 /**
  * Destructor
@@ -55,7 +55,6 @@ IndexItem* Indexer::operator[](int i) const{
  */
 string Indexer::toString() const {
 	string s1 = "Index size: " + size();
-	s1 += " Normalized: " + getNormalized();
 	return s1;
 }
 
@@ -69,16 +68,16 @@ unsigned int Indexer::getFileAmount(){
 /**
  * @return the bool normalized
  */
-bool Indexer::getNormalized() const{
-	return normalized;
-}
-
-/**
- * @param facts the bool value that normalized is being set to
- */
-void Indexer::setNormalized(bool facts){
-	normalized = facts;
-}
+//bool Indexer::getNormalized() const{
+//	return normalized;
+//}
+//
+///**
+// * @param facts the bool value that normalized is being set to
+// */
+//void Indexer::setNormalized(bool facts){
+//	normalized = facts;
+//}
 
 /**
  * @return the vector<IndexItem*> index
@@ -147,10 +146,9 @@ double Indexer::computeScore(vector<double> squery, vector<double> docweight){
 			cout << "Divide by zero, fatal error in query" << endl;
 			exit(1);
 		}
-
 		if (den == 0)
 			return 0;
-		return numsum/(sqrt(densum1)*sqrt(densum2));
+		return numsum/den;
 }
 
 /** Creates Term objects and stores them in the calling object's dictionary
@@ -205,19 +203,19 @@ void Indexer::createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword>
  * dft is the document frequency of t, namely the number of documents t is found in
  * These values are used to calculate the weight of a term t in a document d according to the formula:
  * w(t,d) = (1 + log(tf(t,d))) * log(N/dft)
- */
-void Indexer::normalize(){
-	double n = getIndex().size();	//Document count: n is defined as the total number of documents in your index
-	for(unsigned int i = 0; i != dictionary.size(); ++i) {	//iterate through all terms in the dictionary
-		for(int j = 0; j != n; ++j) {	//iterate through all documents in the indexer calling object
-			if (dictionary[i].termFrequencies[j] == 0)
-				dictionary.at(i).weight.at(j) = 0;
-			else
-				dictionary.at(i).weight.at(j) = ((1+log(dictionary[i].termFrequencies[j]))*log(n/(double)dictionary[i].documentFrequency));
-		}
-	}
-	setNormalized(true);
-}
+// */
+//void Indexer::normalize(){
+//	double n = getIndex().size();	//Document count: n is defined as the total number of documents in your index
+//	for(unsigned int i = 0; i != dictionary.size(); ++i) {	//iterate through all terms in the dictionary
+//		for(int j = 0; j != n; ++j) {	//iterate through all documents in the indexer calling object
+//			if (dictionary[i].termFrequencies[j] == 0)
+//				dictionary.at(i).weight.at(j) = 0;
+//			else
+//				dictionary.at(i).weight.at(j) = ((1+log(dictionary[i].termFrequencies[j]))*log(n/(double)dictionary[i].documentFrequency));
+//		}
+//	}
+//	setNormalized(true);
+//}
 
 
 

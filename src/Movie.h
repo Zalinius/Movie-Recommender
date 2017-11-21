@@ -15,10 +15,6 @@
 
 using namespace std;
 
-/**
- * An IndexItem derived class used to store information about a Movie.<br>
- * It stores its Wikipedia ID, its title, its release date and its summary.<br>
- */
 class Movie : public IndexItem{
 
 public:
@@ -33,7 +29,6 @@ public:
 	const Date getReleaseDate() const;
 
 	friend bool operator < (const Movie &left, const Movie &right);
-	friend bool operator ==(const Movie &left, const Movie &right);
 
 protected:
 

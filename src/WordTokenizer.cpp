@@ -57,7 +57,8 @@ const vector<string> WordTokenizer::tokenize(const string &text){
 				temp.clear();
 			}
 			else{ //is end of sentence
-				tokens.push_back(temp); //Push back the word, ignoring the '.'
+				if(temp.length() != 0)
+					tokens.push_back(temp); //Push back the word, ignoring the '.'
 				temp.clear();
 			}
 		}

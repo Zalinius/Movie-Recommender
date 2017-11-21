@@ -25,7 +25,7 @@ public:
 	vector<unsigned short> termFrequencies; //The termFrequency per document, with the index being the Doc#
 
 	//Move to the document class, filled with the tf-idf weight for each token (sort tokens first?)
-	vector<float> weight; //The tf-idf weight per Document, with the index being the Doc#
+	//vector<float> weight; //The tf-idf weight per Document, with the index being the Doc#
 
 	friend const bool operator== (const Term & left, const Term & right);
 	friend const bool operator< (const Term & left, const Term & right);

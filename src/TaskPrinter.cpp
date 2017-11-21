@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <math.h>
 
 using namespace std;
 
@@ -101,7 +102,7 @@ DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames){
 	}
 
 	library->sortDict();
-	library->normalize();
+	//library->normalize();
 
 	return *library;
 }
@@ -117,7 +118,7 @@ void TaskPrinter::printQuery(DocumentIndexer library)
 	{
 		string s;
 		int n;
-		cout << "\nEnter number of desired search results : ";
+		cout << "Enter number of desired search results: ";
 		cin >> n;
 		cout << "Enter string to be queried: ";
 		getline(cin, s);
@@ -136,7 +137,7 @@ void TaskPrinter::printQuery(DocumentIndexer library)
 		char answer;
 		cout << "\nNew query? (Y/N): ";
 		cin >> answer;
-		if (answer == 'N')
+		if (tolower(answer) == 'n')
 			newQuery = false;
 		else
 			newQuery = true;
@@ -207,7 +208,7 @@ SentenceIndexer& TaskPrinter::setUpSentences(vector<string>& fileNames){
 		++docNo;
 	}
 
-	library->normalize();
+	//library->normalize();
 
 	return *library;
 }
@@ -296,12 +297,19 @@ void TaskPrinter::printIndex(DocumentIndexer library, vector<string>& fileNames,
 
 	for(vector<Term>::const_iterator it = dict.begin(); it != dict.end(); ++it){
 		string word = it->term;
-		if(!((*stopwords)(word) && withoutStops)){
+		if(word == "")
+			cout << "**asshole**" << endl;
+		if(!(withoutStops && (*stopwords)(word))){
 			cout << left << setw(longestWord + 1) << " " + word;
 			cout.flush();
-			for(vector<float>::const_iterator it2 = it->weight.begin(); it2 != it->weight.end(); ++it2){
-				cout << right << setw(findn(docCount) + 4) << setprecision(2) << *it2;	//width is +4 for " Doc"
-				noStopWordTotals.at(docCount-1) += *it2;
+			for(unsigned int j = 0; j != fileNames.size(); ++j){
+				float score = 0;
+				if (it->termFrequencies[j] != 0)
+					score = (((1+log(double(it->termFrequencies[j])))*log(double(library.getIndex().size())/double(it->documentFrequency))));
+
+				cout << right << setw(findn(docCount) + 4) << setprecision(2) << score;	//width is +4 for " Doc"
+				cout.flush();
+				noStopWordTotals.at(docCount-1) += it->termFrequencies[j];
 				++docCount;
 			}
 			cout << "\n";

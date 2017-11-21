@@ -30,7 +30,7 @@ public:
 
 	ostream & operator<< (ostream & os);
 
-	void normalize();
+	//void normalize();
 	vector<IndexItem*>& getIndex();
 	void sortDict();
 	vector<Term>& getDictionary();
@@ -39,8 +39,8 @@ protected:
 
 	virtual vector<QueryResult>& query(string s, int n) = 0;
 	unsigned int size() const;
-	bool getNormalized() const;
-	void setNormalized(bool facts);
+	//bool getNormalized() const;
+	//void setNormalized(bool facts);
 	unsigned int getFileAmount();
 	void setDictionary(vector<Term> dictionary);
 
@@ -60,7 +60,7 @@ private:
 	vector<IndexItem*> index;
 
 	unsigned int fileAmount;
-	bool normalized;
+	//bool normalized;
 
 
 };

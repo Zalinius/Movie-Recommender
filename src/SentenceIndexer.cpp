@@ -5,6 +5,7 @@
 
 #include "SentenceIndexer.h"
 #include <algorithm>
+#include <math.h>
 
 /**
  * Default constructor, keeps the compiler happy
@@ -42,7 +43,7 @@ string SentenceIndexer::toString() const{
  */
 IndexItem & operator>> (Sentence *s, SentenceIndexer& idx){
 	idx.getIndex().push_back(s);
-	idx.setNormalized(false);
+	//idx.setNormalized(false);
 
 	idx.createTerms(s->getTokens(), idx.getIndex().size()-1);
 
@@ -63,14 +64,14 @@ IndexItem & operator>> (Sentence *s, SentenceIndexer& idx){
  */
 vector<QueryResult>& SentenceIndexer::query(string s, int n){
 
-	try{
-		if(getNormalized() == false)
-			throw NON_NORMALIZED_INDEX;
-	}
-	catch (EXCEPTIONS e){
-		cout << "Index is not normalized";
-		exit(1);
-	}
+//	try{
+//		if(getNormalized() == false)
+//			throw NON_NORMALIZED_INDEX;
+//	}
+//	catch (EXCEPTIONS e){
+//		cout << "Index is not normalized";
+//		exit(1);
+//	}
 
 
 	Indexer::sortDict();
@@ -98,11 +99,19 @@ vector<QueryResult>& SentenceIndexer::query(string s, int n){
 
 
 	queryIndex.getIndex().resize(getFileAmount());	//Ensure queryIndex and the calling Indexer are the same size
-	queryIndex.normalize();
+	//queryIndex.normalize();
 
 
+	double h = getIndex().size();
 	for(unsigned int i = 0; i != this->getDictionary().size(); ++i){
-		squery.push_back(queryIndex.getDictionary().at(i).weight.at(0));		//Fill squery, the query's weight vector
+		for(unsigned int j = 0; j != queryIndex.getDictionary().size(); ++j){
+			//squery.push_back(queryIndex.getDictionary().at(i).weight.at(0));
+			if (queryIndex.getDictionary()[i].termFrequencies[j] == 0)
+				squery.push_back(0);
+			else
+				squery.push_back(((1+log(queryIndex.getDictionary()[i].termFrequencies[j]))*log(h/(double)queryIndex.getDictionary()[i].documentFrequency)));
+			//Fill squery, the query's weight vector
+		}
 	}
 
 
@@ -149,14 +158,18 @@ vector<QueryResult>& SentenceIndexer::query(string s, int n){
 		//Repeat the squery procedure for each document and calculate each document's score
 
 		vector<QueryResult> scores;
-		for(int i = 0; i != this->size(); ++i){	//iterate through each document
-		vector<double> docweight;
-		for(int j = 0; j != this->getDictionary().size(); ++j){ //iterate through each term
-			docweight.push_back(this->getDictionary()[j].weight[i]);
+		for(unsigned int i = 0; i != this->size(); ++i){	//iterate through each document
+			vector<double> docweight;
+			for(unsigned int j = 0; j != this->getDictionary().size(); ++j){ //iterate through each term
+				//docweight.push_back(this->getDictionary()[j].weight[i]);
+				if (getDictionary()[i].termFrequencies[j] == 0)
+					docweight.push_back(0);
+				else
+					docweight.push_back(((1+log(getDictionary()[i].termFrequencies[j]))*log(h/(double)getDictionary()[i].documentFrequency)));
+			}
+			QueryResult k(getIndex()[i], computeScore(squery, docweight));
+			scores.push_back(k);
 		}
-		QueryResult k(getIndex()[i], computeScore(squery, docweight));
-		scores.push_back(k);
-	}
 
 	//Sort result from highest to lowest
 	sortByScore(scores);
