@@ -10,13 +10,13 @@ using namespace std;
 /**
  * Default constructor, generally sets values to their 0
  */
-Indexer::Indexer() :  dictionary(vector<Term>()), index(vector<IndexItem*>()), fileAmount(0){}
+Indexer::Indexer() :  dictionary(set<Term>()), index(vector<IndexItem*>()), fileAmount(0){}
 
 
 /**
  * Parameterized constructor, takes a specified size for the parameter fileAmount
  */
-Indexer::Indexer(int fileAmount) :  dictionary(vector<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount){}
+Indexer::Indexer(int fileAmount) :  dictionary(set<Term>()), index(vector<IndexItem*>()), fileAmount(fileAmount){}
 
 /**
  * Destructor
@@ -89,14 +89,14 @@ vector<IndexItem*>& Indexer::getIndex(){
 /**
  * @return the vector<Term> dictionary
  */
-vector<Term>& Indexer::getDictionary(){
+set<Term>& Indexer::getDictionary(){
 	return dictionary;
 }
 
 /** Gives an indexer a new dictionary, used in querying to match the query dictionary to the document library
  * @param newDictionary the vector<Term> value that the dictionary is being set to
  */
-void Indexer::setDictionary(vector<Term> newDictionary){
+void Indexer::setDictionary(set<Term> newDictionary){
 	dictionary = newDictionary;
 }
 
@@ -131,7 +131,7 @@ void Indexer::sortByScore(vector<QueryResult> & scores) {
  * @paramdocweight the normalized weight vector for the document being compared to the query
  * @return the score of a document's weight vector in comparison to the query's weight vector
  */
-double Indexer::computeScore(vector<double> squery, vector<double> docweight){
+double Indexer::computeScore(vector<float> squery, vector<float> docweight){
 
 		int n = docweight.size();
 
@@ -155,41 +155,18 @@ double Indexer::computeScore(vector<double> squery, vector<double> docweight){
  * @param tokens a vector of the tokens to be added to the dictionary
  * @param docNo the number of the document the term came from
  */
-void Indexer::createTerms(vector<string> tokens, int docNo) {
+void Indexer::createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword> stopwords, bool omitStopwords) {
+	string currentToken = "";
 	for(vector<string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it){
 
 		Term newTerm(*it, docNo, fileAmount);
-
-		if(find(dictionary.begin(), dictionary.end(), newTerm) != dictionary.end()){
-			find(dictionary.begin(), dictionary.end(), newTerm)->termFrequencies.at(docNo)++;//increase term frequency count
-			if(find(dictionary.begin(), dictionary.end(), newTerm)->termFrequencies.at(docNo) == 1){
-				find(dictionary.begin(), dictionary.end(), newTerm)->documentFrequency++;
-			}
-		}
-		else{
-			dictionary.push_back(newTerm);
-		}
-	}
-}
-
-//used when you do not want to create terms for stopwords to save memory
-void Indexer::createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword> stopwords) {
-	for(vector<string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it){
-
-		string word = *it;
-		if ((*stopwords)(word))
+		if (currentToken == newTerm.term || (omitStopwords && (*stopwords)(*it)))
 			continue;
-		Term newTerm(*it, docNo, fileAmount);
 
-		if(find(dictionary.begin(), dictionary.end(), newTerm) != dictionary.end()){
-			find(dictionary.begin(), dictionary.end(), newTerm)->termFrequencies.at(docNo)++;//increase term frequency count
-			if(find(dictionary.begin(), dictionary.end(), newTerm)->termFrequencies.at(docNo) == 1){
-				find(dictionary.begin(), dictionary.end(), newTerm)->documentFrequency++;
-			}
-		}
-		else{
-			dictionary.push_back(newTerm);
-		}
+		pair<set<Term>::iterator, bool> info = dictionary.insert(newTerm);
+		currentToken = newTerm.term;
+		if (!info.second)	//the term already exists in the dictionary,
+			info.first->incrementDocumentFrequency();
 	}
 }
 

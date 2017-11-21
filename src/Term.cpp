@@ -26,6 +26,10 @@ Term::Term(string term, unsigned short docNo, size_t fileAmount)
 	termFrequencies.at(docNo) = 1;
 }
 
+void Term::incrementDocumentFrequency() const{
+	++documentFrequency;
+}
+
 /**
  * Two terms are equal if they contain the same word.
  */

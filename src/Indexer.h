@@ -5,7 +5,7 @@
 #include "Term.h"
 #include "QueryResult.h"
 #include <memory>
-#include <vector>
+#include <set>
 #include <iostream>
 
 enum EXCEPTIONS {NON_NORMALIZED_INDEX};
@@ -33,7 +33,7 @@ public:
 	//void normalize();
 	vector<IndexItem*>& getIndex();
 	void sortDict();
-	vector<Term>& getDictionary();
+	set<Term>& getDictionary();
 
 protected:
 
@@ -42,21 +42,20 @@ protected:
 	//bool getNormalized() const;
 	//void setNormalized(bool facts);
 	unsigned int getFileAmount();
-	void setDictionary(vector<Term> dictionary);
+	void setDictionary(set<Term> dictionary);
 
 
 
-	virtual void createTerms(vector<string>, int docNo);
-	void createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword> stopwords);
+	virtual void createTerms(vector<string>, int docNo, shared_ptr<Stopword> stopwords, bool omitStopwords);
 
-	static double computeScore(vector<double> squery, vector<double> docweight);
+	static double computeScore(vector<float> squery, vector<float> docweight);
 	static void sortByScore(vector<QueryResult> & scores);
 
 
 
 private:
 
-	vector<Term> dictionary;
+	set<Term> dictionary;
 	vector<IndexItem*> index;
 
 	unsigned int fileAmount;

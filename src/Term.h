@@ -24,8 +24,7 @@ public:
 	unsigned short documentFrequency; //The document frequency
 	vector<unsigned short> termFrequencies; //The termFrequency per document, with the index being the Doc#
 
-	//Move to the document class, filled with the tf-idf weight for each token (sort tokens first?)
-	//vector<float> weight; //The tf-idf weight per Document, with the index being the Doc#
+	void incrementDocumentFrequency() const;	//doesn't change the ordering on the object in the set
 
 	friend const bool operator== (const Term & left, const Term & right);
 	friend const bool operator< (const Term & left, const Term & right);
