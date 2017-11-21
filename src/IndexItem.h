@@ -19,6 +19,7 @@ public:
 	IndexItem(const string text, bool allowCopies);
 	virtual ~IndexItem();
 	const vector<string>& getTokens() const;
+	unsigned int termFrequency(string term) const;
 
 	friend ostream & operator<< (ostream & os, const IndexItem & i);
 

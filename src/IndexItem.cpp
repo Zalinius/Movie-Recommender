@@ -7,6 +7,7 @@
 
 #include "IndexItem.h"
 #include <string>
+#include <algorithm>
 #include <iostream>
 #include <typeinfo>
 
@@ -42,6 +43,12 @@ const string& IndexItem::content() const{
 const vector<string>& IndexItem::getTokens() const{
 	return tokens.getTokens();
 }
+
+unsigned int IndexItem::termFrequency(string term) const{
+	pair<vector<string>::const_iterator, vector<string>::const_iterator> bounds = equal_range(getTokens().begin(), getTokens().end(), term);
+	return bounds.second - bounds.first;
+}
+
 
 void IndexItem::setContent(string text, bool allowCopies){
 	tokens = WordTokenizer(text, allowCopies);

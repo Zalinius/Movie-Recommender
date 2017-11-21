@@ -6,6 +6,7 @@
  */
 
 #include "WordTokenizer.h"
+#include <algorithm>
 #include <iostream>
 #include <string>
 
@@ -57,8 +58,7 @@ const vector<string> WordTokenizer::tokenize(const string &text){
 				temp.clear();
 			}
 			else{ //is end of sentence
-				if(temp.length() != 0)
-					tokens.push_back(temp); //Push back the word, ignoring the '.'
+				tokens.push_back(temp); //Push back the word, ignoring the '.'
 				temp.clear();
 			}
 		}
@@ -75,7 +75,7 @@ const vector<string> WordTokenizer::tokenize(const string &text){
 		tokens.push_back(temp);
 		temp.clear();
 	}
-
+	sort(tokens.begin(), tokens.end());
 	return tokens;
 }
 
