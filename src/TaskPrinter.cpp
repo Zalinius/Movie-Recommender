@@ -60,8 +60,8 @@ vector<string>& TaskPrinter::setUpFiles(){
 	unsigned int failCount = 0;
 	while(getline(fin, name)){
 		try{
-		Document d("docs/" + name,true);
-		fileNames->push_back("docs/" + name);
+			Document d("docs/" + name,true);
+			fileNames->push_back("docs/" + name);
 		}
 		catch (IndexException& e){
 			failCount++;
@@ -94,8 +94,8 @@ DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames, shared_ptr
 	DocumentIndexer* library = new DocumentIndexer(fileNames.size(), stopwords, omitStopwords);
 	for (vector<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it){
 		try{
-		Document* d = new Document(*it,true);
-		d >> *library;
+			Document* d = new Document(*it,true);
+			d >> *library;
 		}
 		catch (IndexException& e){
 			//do nothing, this shouldn't actually ever happen
@@ -399,18 +399,10 @@ vector<Movie*>& TaskPrinter::setUpMovies(){
 	}
 	ifs.close();
 
-	cout << "All movie names loaded!" <<endl;
-	cout << "There are " << movies.size() << " movies!" << endl;
+	cout << "There are " << movies.size() << " metadata." << endl;
 
 	//Sort all movie metadata for log(n) access
 	sort(movies.begin(), movies.end());
-	cout << "Movies sorted" << endl;
-
-	cout << "Search for film 5463!" << endl;
-	pair<vector<Movie>::iterator, vector<Movie>::iterator> bounds = equal_range(movies.begin(), movies.end(), movies[5463]);
-	cout << movies[5463] << endl;
-	cout << *bounds.first << endl;
-
 
 	ifstream ifs2 = setUpFileStream("movie summaries");
 
@@ -451,63 +443,63 @@ vector<Movie*>& TaskPrinter::setUpMovies(){
 
 DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords){
 	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size(), stopwords, true);
-	cout << "Initialized database" << endl;
-	unsigned short count = 0;
+	cout << "Initializing database..." << endl;
 	for (vector<Movie*>::const_iterator it = movies.begin(); it != movies.end(); ++it){
 		*it >> *movieDatabase;
-		++count;
-		if (count%10000 == 0)
-			cout << count << " movies!" << endl;
 	}
 	return *movieDatabase;
 }
 
 void TaskPrinter::printMovieQuery(DocumentIndexer& movieDatabase){
 	shared_ptr<Stopword> stopwords = movieDatabase.getStopwords();
-		bool newQuery;
-		do
-		{
-			string s;
-			vector<IndexItem*>::const_iterator found;
+	bool newQuery;
+	do
+	{
+		string s;
+		vector<IndexItem*>::const_iterator found;
+		bool done = false;
+		getline(cin, s);
+		while (!done){
 			try{
-			cout << "Enter the name of your movie: ";
-			getline(cin, s);
-			s = "";
-			getline(cin, s);
+				cout << "Enter the name of your movie: ";
+				s = "";
+				getline(cin, s);
 
-			found = find_if(movieDatabase.getIndex().cbegin(), movieDatabase.getIndex().cend(),
+				found = find_if(movieDatabase.getIndex().cbegin(), movieDatabase.getIndex().cend(),
 
-			[&s] (IndexItem* item) {
-				return (dynamic_cast<Movie*>(item))->getName() == s;
-			}
-			);
-			if (found == movieDatabase.getIndex().cend())
-				throw IndexException(s);
+						[&s] (IndexItem* item) {
+					return (dynamic_cast<Movie*>(item))->getName() == s;
+				}
+				);
+				if (found == movieDatabase.getIndex().cend())
+					throw IndexException(s);
+				else
+					done = true;
 			}
 			catch (IndexException& e)
 			{
 				cout << e.what() << endl;
-				continue;
 			}
+		}
 
-			unsigned int n;
-			cout << "Enter number of desired search results: ";
-			cin >> n;
+		unsigned int n;
+		cout << "Enter number of desired search results: ";
+		cin >> n;
 
-			vector<QueryResult>& result = movieDatabase.movieQuery(*found, n);
+		vector<QueryResult>& result = movieDatabase.movieQuery(*found, n);
+		cout << "Recommendations:" << endl << endl;
+		for (unsigned int i = 1; i != n+1; ++i)
+		{
+			cout << (i) << "- " << (*dynamic_cast<Movie*>(result[i].getI())) << endl;
+		}
 
-			for (unsigned int i = 0; i != result.size(); ++i)
-			{
-				cout << (i+1) << "- File: " << dynamic_cast<Document*>(result[i].getI())->getFileName() << ", score: " << result[i].getScore() << endl;
-			}
+		char answer;
+		cout << "\nFeeling brave enough for a new query? (Y/N): ";
+		cin >> answer;
+		if (tolower(answer) == 'n')
+			newQuery = false;
+		else
+			newQuery = true;
 
-			char answer;
-			cout << "\nFeeling brave enough for a new query? (Y/N): ";
-			cin >> answer;
-			if (tolower(answer) == 'n')
-				newQuery = false;
-			else
-				newQuery = true;
-
-		} while (newQuery);
+	} while (newQuery);
 }

@@ -7,6 +7,7 @@
 
 #include "DocumentIndexer.h"
 #include "Sentence.h"
+#include "Stopword.h"
 #include <math.h>
 #include <algorithm>
 
@@ -88,7 +89,6 @@ IndexItem & operator>> (Movie *m, DocumentIndexer& idx){
 vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 
 	//Tokenize s and normalize it relative to the Indexer's dictionary to get squery, the query's weight vector
-	vector<float> squery;
 	Sentence q(s, true, 0);
 
 	Sentence* q1 = &q;
@@ -104,45 +104,75 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 	queryIndex.getIndex().resize(getFileAmount());	//Ensure queryIndex and the calling Indexer are the same size
 	//queryIndex.normalize();
 
+	vector<double> squery;
+
+
+	vector<string> qTokens = q.getTokens(); //Which is sorted
+	string word = "";
 	double h = getIndex().size();
-	for(set<Term>::const_iterator it = queryIndex.getDictionary().begin(); it != queryIndex.getDictionary().end(); ++it){	//iterate through all terms
-			//squery.push_back(queryIndex.getDictionary().at(i).weight.at(0));
-			if (q1->termFrequency(it->getWord()) == 0)
-				squery.push_back(0);
-			else{
-				float score = (1+log(q1->termFrequency(it->getWord())))*log(h);///(float)it->documentFrequency);
-				squery.push_back(score);
-			}
-			//Fill squery, the query's weight vector
+
+	for(vector<string>::const_iterator it = qTokens.cbegin(); it != qTokens.cend(); ++it){
+		if(word != *it && !((*stopwords)(*it))){
+			double scoreQ = (1+log(q1->termFrequency(*it)))*log(h);//(unsigned double)it->getDocumentFrequency());
+			squery.push_back(scoreQ);
+		}
+		else{
+			//do nothing
+		}
+		word = *it;
 	}
-	//Repeat the squery procedure for each Document and calculate each Document's score
+
 	vector<QueryResult> scores;
-	for(vector<IndexItem*>::const_iterator it2 = this->getIndex().begin(); it2 != this->getIndex().end(); ++it2){	//iterate through each document
-		vector<float> docweight;
-		for(set<Term>::const_iterator it = this->getDictionary().begin(); it != this->getDictionary().end(); ++it){ //iterate through each term
-			//docweight.push_back(this->getDictionary()[j].weight[i]);
-			if ((*it2)->termFrequency(it->getWord()) == 0)
-				docweight.push_back(0);
-			else
-			{
-				float score = (1+log((*it2)->termFrequency(it->getWord())))*log(h/(float)it->getDocumentFrequency());
-				docweight.push_back(score);
+
+	//Repeat the squery procedure for each Document and calculate each Document's score
+	for(vector<IndexItem*>::const_iterator it = this->getIndex().begin(); it != this->getIndex().end(); ++it){	//iterate through each document
+		vector<double> matchingDocweight, pureDocweight;
+
+		string queryWord = "";
+		//calculate matchingDocweight
+		for(vector<string>::const_iterator it2 = qTokens.cbegin(); it2 != qTokens.cend(); ++it2){ //Iterate through each token in the query
+			if(queryWord != *it2 && !((*stopwords)(*it2))){ // It's a new unique query word and not a stopword
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);//calculate the document's weight for the QUERY word //(unsigned double)it->documentFrequency);
+				if (scoreD < 0)
+					matchingDocweight.push_back(0);
+				else
+					matchingDocweight.push_back(scoreD);
+				queryWord = *it2;
+			}
+			else{
+				//doNothing
 			}
 		}
-		QueryResult k(*it2, computeScore(squery, docweight));
+
+		string docWord = "";
+		//calculate pureDocweight
+		for(vector<string>::const_iterator it2 = (*it)->getTokens().cbegin(); it2 != (*it)->getTokens().cend(); ++it2){ //Iterate through each token in the document
+			if(docWord != *it2 && !((*stopwords)(*it2))){
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);///(unsigned double)it->documentFrequency);
+				pureDocweight.push_back(scoreD);
+			}
+			else{
+				//do nothing
+			}
+			docWord = *it2;
+		}
+		QueryResult k(*it, computeScore(squery, matchingDocweight, pureDocweight));
 		scores.push_back(k);
 	}
 
 	//Sort result from highest to lowest
 	sortByScore(scores);
+	cout << "Scores sorted" << endl;
+		//Set top n+1 results, the best result is the query movie itself and will not be displayed
+		vector<QueryResult>* result = new vector<QueryResult>;
+		unsigned int count = 0;
+		for(vector<QueryResult>::const_iterator it = scores.cbegin(); it != scores.cend() && count != n+1; ++it, ++count){
+			result->push_back(*it);
+		}
 
-	//Set top n results
-	vector<QueryResult>* result = new vector<QueryResult>;
-	for(int i = 0; i != n; ++i){
-		result->push_back(scores[i]);
-	}
+		cout << "Returning " << result->size() << " results!" << endl;
 
-	return *result;
+		return *result;
 
 }
 
@@ -150,7 +180,7 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 vector<QueryResult>& DocumentIndexer::movieQuery(IndexItem* m1, unsigned int n){
 	Movie* m = dynamic_cast<Movie*>(m1);
 
-	vector<float> squery;
+	vector<double> squery;
 
 	shared_ptr<Stopword> stopwords = this->getStopwords();
 
@@ -162,87 +192,71 @@ vector<QueryResult>& DocumentIndexer::movieQuery(IndexItem* m1, unsigned int n){
 
 	queryIndex.getIndex().resize(getFileAmount());	//Ensure queryIndex and the calling Indexer are the same size
 
-	cout << this->getDictionary().size() << " unique words" << endl;
+	vector<string> qTokens = m->getTokens(); //Which is sorted
+	string word = "";
 	double h = getIndex().size();
-	for(set<Term>::const_iterator it = queryIndex.getDictionary().begin(); it != queryIndex.getDictionary().end(); ++it){	//iterate through all terms
-			//squery.push_back(queryIndex.getDictionary().at(i).weight.at(0));
-			if (m->termFrequency(it->getWord()) == 0)
-				squery.push_back(0);
-			else{
-				float score = (1+log(m->termFrequency(it->getWord())))*log(h);///(float)it->documentFrequency);
-				squery.push_back(score);
-			}
-			//Fill squery, the query's weight vector
+
+	for(vector<string>::const_iterator it = qTokens.cbegin(); it != qTokens.cend(); ++it){
+		if(word != *it && !((*stopwords)(*it))){
+			double scoreQ = (1+log(m->termFrequency(*it)))*log(h);//(unsigned double)it->getDocumentFrequency());
+			squery.push_back(scoreQ);
+		}
+		else{
+			//do nothing
+		}
+		word = *it;
 	}
 
-	//Repeat the squery procedure for each Document and calculate each Document's score
 	vector<QueryResult> scores;
-	for(vector<IndexItem*>::const_iterator it2 = this->getIndex().begin(); it2 != this->getIndex().end(); ++it2){	//iterate through each document
-		vector<float> docweight;
-		for(set<Term>::const_iterator it = this->getDictionary().begin(); it != this->getDictionary().end(); ++it){ //iterate through each term
-			//docweight.push_back(this->getDictionary()[j].weight[i]);
-			unsigned int termFreq = (*it2)->termFrequency(it->getWord());
-			if (termFreq == 0)
-				docweight.push_back(0);
-			else
-			{
-				float score = (1+log(termFreq))*log(h/(float)it->getDocumentFrequency());
-				docweight.push_back(score);
+
+	//Repeat the squery procedure for each Document and calculate each Document's score
+	for(vector<IndexItem*>::const_iterator it = this->getIndex().begin(); it != this->getIndex().end(); ++it){	//iterate through each document
+		vector<double> matchingDocweight, pureDocweight;
+
+		string queryWord = "";
+		//calculate matchingDocweight
+		for(vector<string>::const_iterator it2 = qTokens.cbegin(); it2 != qTokens.cend(); ++it2){ //Iterate through each token in the query
+			if(queryWord != *it2 && !((*stopwords)(*it2))){ // It's a new unique query word and not a stopword
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);//calculate the document's weight for the QUERY word //(unsigned double)it->documentFrequency);
+				if (scoreD < 0)
+					matchingDocweight.push_back(0);
+				else
+					matchingDocweight.push_back(scoreD);
+				queryWord = *it2;
+			}
+			else{
+				//doNothing
 			}
 		}
-		QueryResult k(*it2, computeScore(squery, docweight));
+
+		string docWord = "";
+		//calculate pureDocweight
+		for(vector<string>::const_iterator it2 = (*it)->getTokens().cbegin(); it2 != (*it)->getTokens().cend(); ++it2){ //Iterate through each token in the document
+			if(docWord != *it2 && !((*stopwords)(*it2))){
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);///(unsigned double)it->documentFrequency);
+				pureDocweight.push_back(scoreD);
+			}
+			else{
+				//do nothing
+			}
+			docWord = *it2;
+		}
+		QueryResult k(*it, computeScore(squery, matchingDocweight, pureDocweight));
 		scores.push_back(k);
-		if (scores.size()%100 == 0)
-			cout << scores.size() << " movie scores calculated" << endl;
 	}
 
 	//Sort result from highest to lowest
 	sortByScore(scores);
-
-
-	//Set top n results
+	cout << "Scores sorted" << endl;
+	//Set top n+1 results, the best result is the query movie itself and will not be displayed
 	vector<QueryResult>* result = new vector<QueryResult>;
-	for(unsigned int i = 0; i != n; ++i){
-		result->push_back(scores[i]);
+	unsigned int count = 0;
+	for(vector<QueryResult>::const_iterator it = scores.cbegin(); it != scores.cend() && count != n+1; ++it, ++count){
+		result->push_back(*it);
 	}
+
+	cout << "Returning " << result->size() << " results!" << endl;
 
 	return *result;
 
 }
-
-/*
- 	//Debug table
-		cout << "\nlibrary dictionary weights (hopefully normalized)" << endl;
-		for(unsigned int i = 0; i != library->size(); ++i){	//iterate through each document
-				for(unsigned int j = 0; j != library->dictionary.size(); ++j){  //iterate through each term
-					cout << library->dictionary.at(j).weight.at(i) << " ";
-				}
-				cout << endl;
-			}
-	//Debug table
-			cout << "\nlibrary dictionary counts" << endl;
-			for(unsigned int i = 0; i != library->size(); ++i){	//iterate through each document
-					for(unsigned int j = 0; j != library->dictionary.size(); ++j){  //iterate through each term
-						cout << library->dictionary.at(j).termFrequencies.at(i) << " ";
-					}
-					cout << endl;
-				}
-
-	//Debug table
-		cout << "\nlibrary dictionary weights (not normalized)" << endl;
-		for(unsigned int i = 0; i != library->size(); ++i){	//iterate through each document
-				for(unsigned int j = 0; j != library->dictionary.size(); ++j){  //iterate through each term
-					cout << library->dictionary.at(j).weight.at(i) << " ";
-				}
-				cout << endl;
-			}
-
-//Debugging table
-		cout << "\nq_i dictionary counts" << endl;
-		for(unsigned int i = 0; i != this->size(); ++i){	//iterate through each document
-				for(unsigned int j = 0; j != queryIndex.dictionary.size(); ++j){  //iterate through each term
-					cout << queryIndex.dictionary.at(j).termFrequencies.at(i) << " ";
-				}
-				cout << endl;
-			}
-*/
