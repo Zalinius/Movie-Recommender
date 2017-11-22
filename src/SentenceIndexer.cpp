@@ -125,8 +125,8 @@ vector<QueryResult>& SentenceIndexer::query(string s, unsigned int n){
 					docweight.push_back(score);
 				}
 			}
-			QueryResult k(getIndex()[i], computeScore(squery, docweight));
-			scores.push_back(k);
+			//TODOQueryResult k(getIndex()[i], computeScore(squery, docweight));TODO
+			//TODOscores.push_back(k);TODO
 		}
 
 	//Sort result from highest to lowest

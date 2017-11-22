@@ -495,10 +495,10 @@ void TaskPrinter::printMovieQuery(DocumentIndexer& movieDatabase){
 			cin >> n;
 
 			vector<QueryResult>& result = movieDatabase.movieQuery(*found, n);
-
-			for (unsigned int i = 0; i != result.size(); ++i)
+			cout << "It's what Zach has been waiting for! The recommendations!" << endl;
+			for (unsigned int i = 0; i != n; ++i)
 			{
-				cout << (i+1) << "- File: " << dynamic_cast<Document*>(result[i].getI())->getFileName() << ", score: " << result[i].getScore() << endl;
+				cout << (i+1) << "- File: " << dynamic_cast<Movie*>(result[i].getI())->getName() << ", score: " << result[i].getScore() << endl;
 			}
 
 			char answer;

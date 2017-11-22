@@ -115,24 +115,29 @@ void Indexer::sortByScore(vector<QueryResult> & scores) {
  * @paramdocweight the normalized weight vector for the document being compared to the query
  * @return the score of a document's weight vector in comparison to the query's weight vector
  */
-double Indexer::computeScore(vector<float> squery, vector<float> docweight){
+double Indexer::computeScore(vector<double> squery, vector<double> matchingDocweight, vector<double> pureDocweight){
 
-		int n = docweight.size();
+	double numsum = 0, densum1 = 0, densum2 = 0;
 
-		double numsum = 0, densum1 = 0, densum2 = 0;
-		for(int i = 0; i != n; ++i) {
-			numsum += squery[i]*docweight[i];
-			densum1 += squery[i]*squery[i];
-			densum2 += docweight[i]*docweight[i];
-		}
-		double den = sqrt(densum1)*sqrt(densum2);
-		if (den < 0){
-			cout << "Divide by zero, fatal error in query" << endl;
-			exit(1);
-		}
-		if (den == 0)
-			return 0;
-		return numsum/den;
+	vector<double>::const_iterator sqIt, mDwIt;
+	for(sqIt = squery.cbegin(), mDwIt = matchingDocweight.cbegin(); sqIt != squery.cend() && mDwIt != matchingDocweight.cend(); ++sqIt, ++mDwIt){
+		numsum += (*sqIt)*(*mDwIt);
+		densum1 += (*sqIt)*(*sqIt);
+	}
+
+	vector<double>::const_iterator pDwIt;
+	for(pDwIt = pureDocweight.cbegin(); pDwIt != pureDocweight.cend(); ++pDwIt){
+		densum2 += (*pDwIt)*(*pDwIt);
+	}
+
+	double den = sqrt(densum1);//*sqrt(densum2);TODO
+	if (den < 0){
+		cout << "Divide by zero, fatal error in query" << endl;
+		exit(1);
+	}
+	if (den == 0)
+		return 0;
+	return numsum/den;
 }
 
 /** Creates Term objects and stores them in the calling object's dictionary
@@ -167,7 +172,7 @@ void Indexer::createTerms(vector<string> tokens, int docNo, shared_ptr<Stopword>
 // */
 //void Indexer::normalize(){
 //	double n = getIndex().size();	//Document count: n is defined as the total number of documents in your index
-//	for(unsigned int i = 0; i != dictionary.size(); ++i) {	//iterate through all terms in the dictionary
+//	for(int i = 0; i != dictionary.size(); ++i) {	//iterate through all terms in the dictionary
 //		for(int j = 0; j != n; ++j) {	//iterate through all documents in the indexer calling object
 //			if (dictionary[i].termFrequencies[j] == 0)
 //				dictionary.at(i).weight.at(j) = 0;

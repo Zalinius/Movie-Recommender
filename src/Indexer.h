@@ -47,7 +47,7 @@ protected:
 
 	virtual void createTerms(vector<string>, int docNo, shared_ptr<Stopword> stopwords, bool omitStopwords);
 
-	static double computeScore(vector<float> squery, vector<float> docweight);
+	static double computeScore(vector<double> squery, vector<double> matchingDocweight, vector<double> pureDocweight);
 	static void sortByScore(vector<QueryResult> & scores);
 
 
