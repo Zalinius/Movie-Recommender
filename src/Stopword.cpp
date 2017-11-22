@@ -18,7 +18,6 @@ Stopword::Stopword(string filename, bool allowCopies)  throw(IndexException)
 :Document(filename, allowCopies)
 {
 	//cout << "Stopword Constructed" << endl;
-
 }
 
 /**
@@ -39,9 +38,23 @@ string::size_type Stopword::size() const{
  * return: true if the token is found, false otherwise
  */
 bool Stopword::operator()(string token) const{
-	std::transform(token.begin(), token.end(), token.begin(), ::tolower);
-	vector<string>::const_iterator result = lower_bound(getTokens().begin(), getTokens().end(), token);
-	return result == getTokens().end();
+	transform(token.begin(), token.end(), token.begin(), ::tolower);
+	//vector<string>::const_iterator result = lower_bound(getTokens().begin(), getTokens().end(), token);
+	//if(result == getTokens().end()){
+	//	cout << token << " is a stopword." << endl;
+	//}
+	//else{
+	//	cout << token << " is not a stopword." << endl;
+	//}
+	//return result == getTokens().end();
+
+	//vector<string> toks = getTokens();
+	//sort(toks.begin(), toks.end());
+
+	pair<vector<string>::const_iterator, vector<string>::const_iterator> bounds = equal_range(getTokens().begin(), getTokens().end(), token);
+	return (bounds.second - bounds.first != 0);
+
+	//return (find(getTokens().begin(), getTokens().end(), token) != getTokens().end());
 }
 
 /**

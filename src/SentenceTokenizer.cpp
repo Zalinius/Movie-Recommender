@@ -60,7 +60,6 @@ const vector<string> SentenceTokenizer::tokenize(const string &text){
 			else{
 				temp.push_back(*it);
 				sents.push_back(temp);
-				cout << "SENTENCE:***" << temp << "***" << endl;
 				temp.clear();
 			}
 		}

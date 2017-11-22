@@ -158,17 +158,16 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 
 	//Sort result from highest to lowest
 	sortByScore(scores);
-	cout << "Scores sorted" << endl;
-		//Set top n+1 results, the best result is the query movie itself and will not be displayed
-		vector<QueryResult>* result = new vector<QueryResult>;
-		unsigned int count = 0;
-		for(vector<QueryResult>::const_iterator it = scores.cbegin(); it != scores.cend() && count != n+1; ++it, ++count){
-			result->push_back(*it);
-		}
+	//Set top n+1 results, the best result is the query movie itself and will not be displayed
+	vector<QueryResult>* result = new vector<QueryResult>;
+	unsigned int count = 0;
+	for(vector<QueryResult>::const_iterator it = scores.cbegin(); it != scores.cend() && count != n+1; ++it, ++count){
+		result->push_back(*it);
+	}
 
-		cout << "Returning " << result->size() << " results!" << endl;
+	cout << "Returning " << result->size() << " results!" << endl;
 
-		return *result;
+	return *result;
 
 }
 
@@ -248,15 +247,12 @@ vector<QueryResult>& DocumentIndexer::movieQuery(IndexItem* m1, unsigned int n){
 
 	//Sort result from highest to lowest
 	sortByScore(scores);
-	cout << "Scores sorted" << endl;
 	//Set top n+1 results, the best result is the query movie itself and will not be displayed
 	vector<QueryResult>* result = new vector<QueryResult>;
 	unsigned int count = 0;
 	for(vector<QueryResult>::const_iterator it = scores.cbegin(); it != scores.cend() && count != n+1; ++it, ++count){
 		result->push_back(*it);
 	}
-
-	cout << "Returning " << result->size() << " results!" << endl;
 
 	return *result;
 
