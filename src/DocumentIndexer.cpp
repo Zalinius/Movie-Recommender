@@ -174,7 +174,7 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 /**
  * Compares the plots of the Documents of the calling Indexer to the user's query movie for likeness in token weights
  * m: the user's query movie
- * n: the number of query results (movie reommendations) desired, by default n = 10
+ * n: the number of query results (movie reommendations) desired, by default n = 5
  * return: the top n results (movies as a QueryResult vector) which best match the query movie
  */
 vector<QueryResult>& DocumentIndexer::movieQuery(IndexItem* m1, unsigned int n){

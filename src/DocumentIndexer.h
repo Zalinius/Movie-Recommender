@@ -20,7 +20,7 @@ public:
 	virtual ~DocumentIndexer();
 
 	vector<QueryResult>& query(string s, unsigned int n = 10);
-	vector<QueryResult>& movieQuery(IndexItem* m, unsigned int n = 10);
+	vector<QueryResult>& movieQuery(IndexItem* m, unsigned int n = 5);
 
 	friend IndexItem & operator>> (Document *d, DocumentIndexer& idx);
 	friend IndexItem & operator>> (Sentence *s, DocumentIndexer& idx);
