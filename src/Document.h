@@ -1,9 +1,3 @@
-/*
- * Document.h
- *
- *  Created on: Nov 3, 2017
- *      Author: lapoi
- */
 
 #ifndef DOCUMENT_H_
 #define DOCUMENT_H_
@@ -17,6 +11,9 @@
 
 using namespace std;
 
+/**
+ * A descendant of IndexItem, Document objects have their own SentenceTokenizer used to store their file name and it's Sentence objects (sentences)
+ */
 class Document: public IndexItem{
 
 public:
