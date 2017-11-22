@@ -1,10 +1,3 @@
-/*
- * AbstractTokenizer.h
- *
- *  Created on: Nov 3, 2017
- *      Author: lapoi
- */
-
 #ifndef ABSTRACTTOKENIZER_H_
 #define ABSTRACTTOKENIZER_H_
 
