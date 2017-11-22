@@ -50,12 +50,6 @@ IndexItem & operator>> (Sentence *s, SentenceIndexer& idx){
 }
 
 
-
-
-//Override the query function for the sentence indexer, so that the second int
-//argument now defines the maximum total words in the returned sentences (e.g., when you set it to 500
-//words, it will return as many top-ranked sentences as possible to fit in the total length of 500 words)
-//string s is read in from the question file
 /** Finds the top matching sentences to the query within the word count limit
  * @param s a string of the essay question
  * @param n the word count limit for the essay being generated
@@ -63,38 +57,19 @@ IndexItem & operator>> (Sentence *s, SentenceIndexer& idx){
  */
 vector<QueryResult>& SentenceIndexer::query(string s, unsigned int n){
 
-	//	try{
-	//		if(getNormalized() == false)
-	//			throw NON_NORMALIZED_INDEX;
-	//	}
-	//	catch (EXCEPTIONS e){
-	//		cout << "Index is not normalized";
-	//		exit(1);
-	//	}
-
-
-	//Tokenize s and normalize it relative to the Indexer's dictionary to get squery, the query's weight vector
+	//Tokenize s and weight it relative to the Indexer's dictionary to get squery, the query's weight vector
 	Sentence q(s, true, 0);
 
 	Sentence* q1 = &q;
 	shared_ptr<Stopword> stopwords = this->getStopwords();
 	SentenceIndexer queryIndex(getFileAmount(), stopwords, false);
 
-	//Need to give queryIndex the same dictionary of Terms, but with its own counts & weights (set all to zero first, then read in the query)
+	//Need to give queryIndex the same dictionary of Terms
 	queryIndex.setDictionary(this->getDictionary());
 
-	//	for(unsigned int i = 0; i != this->size(); ++i){	//iterate through each document
-	//		for(unsigned int j = 0; j != queryIndex.getDictionary().size(); ++j){  //iterate through each term
-	//			queryIndex.getDictionary().at(j).termFrequencies.at(i) = 0;			//set all term frequencies in the queryIndex to 0, to be overwritten later
-	//			queryIndex.getDictionary().at(j).documentFrequency = 1;
-	//		}
-	//	}
-
-	q1 >> queryIndex;	//Increments the term frequencies in queryIndex's dictionary
-
+	q1 >> queryIndex;
 
 	queryIndex.getIndex().resize(getFileAmount());	//Ensure queryIndex and the calling Indexer are the same size
-	//queryIndex.normalize();
 
 	vector<double> squery;
 
@@ -103,10 +78,9 @@ vector<QueryResult>& SentenceIndexer::query(string s, unsigned int n){
 	double h = getIndex().size();
 
 
-	//Sort result from highest to lowest
 	for(vector<string>::const_iterator it = qTokens.cbegin(); it != qTokens.cend(); ++it){
 		if(word != *it && !((*stopwords)(*it))){
-			double scoreQ = (1+log(q1->termFrequency(*it)))*log(h);//(unsigned double)it->getDocumentFrequency());
+			double scoreQ = (1+log(q1->termFrequency(*it)))*log(h);
 			squery.push_back(scoreQ);
 		}
 		else{
@@ -125,7 +99,7 @@ vector<QueryResult>& SentenceIndexer::query(string s, unsigned int n){
 		//calculate matchingDocweight
 		for(vector<string>::const_iterator it2 = qTokens.cbegin(); it2 != qTokens.cend(); ++it2){ //Iterate through each token in the query
 			if(queryWord != *it2 && !((*stopwords)(*it2))){ // It's a new unique query word and not a stopword
-				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);//calculate the document's weight for the QUERY word //(unsigned double)it->documentFrequency);
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);//calculate the document's weight for the QUERY word
 				if (scoreD < 0)
 					matchingDocweight.push_back(0);
 				else
@@ -141,7 +115,7 @@ vector<QueryResult>& SentenceIndexer::query(string s, unsigned int n){
 		//calculate pureDocweight
 		for(vector<string>::const_iterator it2 = (*it)->getTokens().cbegin(); it2 != (*it)->getTokens().cend(); ++it2){ //Iterate through each token in the document
 			if(docWord != *it2 && !((*stopwords)(*it2))){
-				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);///(unsigned double)it->documentFrequency);
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);
 				pureDocweight.push_back(scoreD);
 			}
 			else{
@@ -155,11 +129,8 @@ vector<QueryResult>& SentenceIndexer::query(string s, unsigned int n){
 
 	//Sort result from highest to lowest
 	sortByScore(scores);
-	cout << "Scores sorted" << endl;
 
 	//Get sentences back, sort by document, push QueryResult sentences onto result and meet the word count
-
-	//Set top n results
 	vector<QueryResult>* topSentences = new vector<QueryResult>();
 	unsigned int wordCount = 0;
 	unsigned int count = 0;
