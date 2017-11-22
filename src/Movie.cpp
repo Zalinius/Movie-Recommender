@@ -68,14 +68,17 @@ string::size_type Movie::size() const{
 
 /**
  * The polymorphic function used in IndexItem's << operator
- * @return The Movie's ID, title and release date, in a nicely formatted string.
+ * @return The Movie's ID, title, release date and summary, in a nicely formatted string.
  */
 const string Movie::toString() const{
 	stringstream debugString;
-	debugString << setw(10) << left << to_string(iD) + ":";
+	debugString << "ID:" << setw(10) << left << to_string(iD) + ":";
 	debugString << title;
 	debugString << ", ";
 	debugString << releaseDate;
+	debugString << ".\n\t";
+	debugString << content();
+	debugString << "\n";
 
 	return debugString.str();
 }

@@ -22,7 +22,7 @@ int main(){
 
 	vector<Movie*> movies = TaskPrinter::setUpMovies();
 	DocumentIndexer& movieDatabase = TaskPrinter::setUpMovieDatabase(movies, stopwords);
-	cout << "Movie database is set up" << endl;
+	cout << "Movie database is set up with " << movieDatabase.getIndex().size() << " movies."<< endl;
 	TaskPrinter::printMovieQuery(movieDatabase);
 
 }

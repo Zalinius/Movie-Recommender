@@ -399,18 +399,10 @@ vector<Movie*>& TaskPrinter::setUpMovies(){
 	}
 	ifs.close();
 
-	cout << "All movie names loaded!" <<endl;
-	cout << "There are " << movies.size() << " movies!" << endl;
+	cout << "There are " << movies.size() << " metadata." << endl;
 
 	//Sort all movie metadata for log(n) access
 	sort(movies.begin(), movies.end());
-	cout << "Movies sorted" << endl;
-
-	cout << "Search for film 5463!" << endl;
-	pair<vector<Movie>::iterator, vector<Movie>::iterator> bounds = equal_range(movies.begin(), movies.end(), movies[5463]);
-	cout << movies[5463] << endl;
-	cout << *bounds.first << endl;
-
 
 	ifstream ifs2 = setUpFileStream("movie summaries");
 
@@ -451,13 +443,9 @@ vector<Movie*>& TaskPrinter::setUpMovies(){
 
 DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords){
 	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size(), stopwords, true);
-	cout << "Initialized database" << endl;
-	unsigned short count = 0;
+	cout << "Initializing database..." << endl;
 	for (vector<Movie*>::const_iterator it = movies.begin(); it != movies.end(); ++it){
 		*it >> *movieDatabase;
-		++count;
-		if (count%10000 == 0)
-			cout << count << " movies!" << endl;
 	}
 	return *movieDatabase;
 }
@@ -499,10 +487,10 @@ void TaskPrinter::printMovieQuery(DocumentIndexer& movieDatabase){
 		cin >> n;
 
 		vector<QueryResult>& result = movieDatabase.movieQuery(*found, n);
-		cout << "It's what Zach has been waiting for! The recommendations!" << endl;
+		cout << "Recommendations:" << endl << endl;
 		for (unsigned int i = 1; i != n+1; ++i)
 		{
-			cout << (i) << "- Movie: " << dynamic_cast<Movie*>(result[i].getI())->getName() << ", score: " << result[i].getScore() << endl;
+			cout << (i) << "- " << (*dynamic_cast<Movie*>(result[i].getI())) << endl;
 		}
 
 		char answer;
