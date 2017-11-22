@@ -1,10 +1,3 @@
-/*
- * IndexItem.h
- *
- *  Created on: Nov 3, 2017
- *      Author: lapoi
- */
-
 #ifndef INDEXITEM_H_
 #define INDEXITEM_H_
 
