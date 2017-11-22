@@ -1,10 +1,3 @@
-/*
- * Date.cpp
- *
- *  Created on: Nov 18, 2017
- *      Author: lapoi
- */
-
 #include "Date.h"
 #include <locale>
 #include <string>
