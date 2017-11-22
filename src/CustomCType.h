@@ -1,10 +1,3 @@
-/*
- * CustomCType.h
- *
- *  Created on: Nov 19, 2017
- *      Author: lapoi
- */
-
 #ifndef CUSTOMCTYPE_H_
 #define CUSTOMCTYPE_H_
 
