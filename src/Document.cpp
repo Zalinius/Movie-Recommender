@@ -1,10 +1,3 @@
-/**
- * Document.cpp
- *
- *  Created on: Nov 3, 2017
- *  @Author Zachary Lapointe
- */
-
 #include "Document.h"
 #include <iostream>
 #include <string>
