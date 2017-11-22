@@ -1,11 +1,4 @@
 /*
- * IndexException.h
- *
- *  Created on: Nov 18, 2017
- *      Author: Nicole Parmentier
- */
-
-/*
  * Override the virtual function what() to provide an explanation of the exception. Change any existing
 code in your classes to use the new exception class in case of errors. Make sure you process the
 exceptions (try...catch) so that your main program does not terminate. In particular, for Task 4,
