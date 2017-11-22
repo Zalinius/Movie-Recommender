@@ -1,10 +1,3 @@
-/*
- * DocumentIndexer.h
- *
- *  Created on: Nov 5, 2017
- *      Author: Zachary
- */
-
 #ifndef SRC_DOCUMENTINDEXER_H_
 #define SRC_DOCUMENTINDEXER_H_
 

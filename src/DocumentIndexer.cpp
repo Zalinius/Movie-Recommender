@@ -1,10 +1,3 @@
-/*
- * DocumentIndexer.cpp
- *
- *  Created on: Nov 5, 2017
- *      Author: Zachary
- */
-
 #include "DocumentIndexer.h"
 #include "Sentence.h"
 #include "Stopword.h"
@@ -68,6 +61,9 @@ IndexItem & operator>> (Sentence *s, DocumentIndexer& idx){
 	return *s;
 }
 
+/**
+ * Adds a movie to a DocumentIndexer, used in Task 4 to build up the movie database, creating the terms from all movie plot summaries in the dictionary
+ */
 IndexItem & operator>> (Movie *m, DocumentIndexer& idx){
 	idx.getIndex().push_back(m);
 
@@ -176,7 +172,12 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 
 }
 
-
+/**
+ * Compares the plots of the Documents of the calling Indexer to the user's query movie for likeness in token weights
+ * m: the user's query movie
+ * n: the number of query results (movie reommendations) desired, by default n = 10
+ * return: the top n results (movies as a QueryResult vector) which best match the query movie
+ */
 vector<QueryResult>& DocumentIndexer::movieQuery(IndexItem* m1, unsigned int n){
 	Movie* m = dynamic_cast<Movie*>(m1);
 
