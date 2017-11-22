@@ -1,10 +1,3 @@
-/*
- * Movie.cpp
- *
- *  Created on: Nov 18, 2017
- *      Author: lapoi
- */
-
 #include "Movie.h"
 #include "Date.h"
 #include <iomanip>
