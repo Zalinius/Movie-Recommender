@@ -60,8 +60,8 @@ vector<string>& TaskPrinter::setUpFiles(){
 	unsigned int failCount = 0;
 	while(getline(fin, name)){
 		try{
-		Document d("docs/" + name,true);
-		fileNames->push_back("docs/" + name);
+			Document d("docs/" + name,true);
+			fileNames->push_back("docs/" + name);
 		}
 		catch (IndexException& e){
 			failCount++;
@@ -94,8 +94,8 @@ DocumentIndexer& TaskPrinter::setUpLibrary(vector<string>& fileNames, shared_ptr
 	DocumentIndexer* library = new DocumentIndexer(fileNames.size(), stopwords, omitStopwords);
 	for (vector<string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it){
 		try{
-		Document* d = new Document(*it,true);
-		d >> *library;
+			Document* d = new Document(*it,true);
+			d >> *library;
 		}
 		catch (IndexException& e){
 			//do nothing, this shouldn't actually ever happen
@@ -464,50 +464,54 @@ DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_
 
 void TaskPrinter::printMovieQuery(DocumentIndexer& movieDatabase){
 	shared_ptr<Stopword> stopwords = movieDatabase.getStopwords();
-		bool newQuery;
-		do
-		{
-			string s;
-			vector<IndexItem*>::const_iterator found;
+	bool newQuery;
+	do
+	{
+		string s;
+		vector<IndexItem*>::const_iterator found;
+		bool done = false;
+		getline(cin, s);
+		while (!done){
 			try{
-			cout << "Enter the name of your movie: ";
-			getline(cin, s);
-			s = "";
-			getline(cin, s);
+				cout << "Enter the name of your movie: ";
+				s = "";
+				getline(cin, s);
 
-			found = find_if(movieDatabase.getIndex().cbegin(), movieDatabase.getIndex().cend(),
+				found = find_if(movieDatabase.getIndex().cbegin(), movieDatabase.getIndex().cend(),
 
-			[&s] (IndexItem* item) {
-				return (dynamic_cast<Movie*>(item))->getName() == s;
-			}
-			);
-			if (found == movieDatabase.getIndex().cend())
-				throw IndexException(s);
+						[&s] (IndexItem* item) {
+					return (dynamic_cast<Movie*>(item))->getName() == s;
+				}
+				);
+				if (found == movieDatabase.getIndex().cend())
+					throw IndexException(s);
+				else
+					done = true;
 			}
 			catch (IndexException& e)
 			{
 				cout << e.what() << endl;
-				continue;
 			}
+		}
 
-			unsigned int n;
-			cout << "Enter number of desired search results: ";
-			cin >> n;
+		unsigned int n;
+		cout << "Enter number of desired search results: ";
+		cin >> n;
 
-			vector<QueryResult>& result = movieDatabase.movieQuery(*found, n);
-			cout << "It's what Zach has been waiting for! The recommendations!" << endl;
-			for (unsigned int i = 0; i != n; ++i)
-			{
-				cout << (i+1) << "- File: " << dynamic_cast<Movie*>(result[i].getI())->getName() << ", score: " << result[i].getScore() << endl;
-			}
+		vector<QueryResult>& result = movieDatabase.movieQuery(*found, n);
+		cout << "It's what Zach has been waiting for! The recommendations!" << endl;
+		for (unsigned int i = 1; i != n+1; ++i)
+		{
+			cout << (i) << "- Movie: " << dynamic_cast<Movie*>(result[i].getI())->getName() << ", score: " << result[i].getScore() << endl;
+		}
 
-			char answer;
-			cout << "\nFeeling brave enough for a new query? (Y/N): ";
-			cin >> answer;
-			if (tolower(answer) == 'n')
-				newQuery = false;
-			else
-				newQuery = true;
+		char answer;
+		cout << "\nFeeling brave enough for a new query? (Y/N): ";
+		cin >> answer;
+		if (tolower(answer) == 'n')
+			newQuery = false;
+		else
+			newQuery = true;
 
-		} while (newQuery);
+	} while (newQuery);
 }

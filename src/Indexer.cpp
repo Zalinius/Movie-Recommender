@@ -130,7 +130,7 @@ double Indexer::computeScore(vector<double> squery, vector<double> matchingDocwe
 		densum2 += (*pDwIt)*(*pDwIt);
 	}
 
-	double den = sqrt(densum1);//*sqrt(densum2);TODO
+	double den = sqrt(densum1)*sqrt(densum2);
 	if (den < 0){
 		cout << "Divide by zero, fatal error in query" << endl;
 		exit(1);
