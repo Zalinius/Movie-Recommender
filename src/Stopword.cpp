@@ -40,8 +40,8 @@ string::size_type Stopword::size() const{
  */
 bool Stopword::operator()(string token) const{
 	std::transform(token.begin(), token.end(), token.begin(), ::tolower);
-	vector<string>::const_iterator result = lower_bound(getTokens().cbegin(), getTokens().cend(), token);
-	return result != getTokens().cend();
+	vector<string>::const_iterator result = lower_bound(getTokens().begin(), getTokens().end(), token);
+	return result == getTokens().end();
 }
 
 /**
