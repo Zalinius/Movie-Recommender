@@ -1,10 +1,3 @@
-/*
- * movie.h
- *
- *  Created on: Nov 18, 2017
- *      Author: lapoi
- */
-
 #ifndef MOVIE_H_
 #define MOVIE_H_
 
