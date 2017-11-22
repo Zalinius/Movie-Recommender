@@ -1,3 +1,10 @@
+/**
+ * Document.cpp
+ *
+ *  Created on: Nov 3, 2017
+ *  @Author Zachary Lapointe
+ */
+
 #include "Document.h"
 #include <iostream>
 #include <string>
@@ -14,6 +21,7 @@ using namespace std;
 Document::Document(string fileName, bool allowCopies)  throw(IndexException)
 :IndexItem(getText(fileName), allowCopies), fileName(fileName), sentenceTokens(SentenceTokenizer(content(), allowCopies)), sentences(makeSentences(sentenceTokens))
 {
+	//cout << "Document Constructed" << endl;
 }
 
 Document::~Document(){

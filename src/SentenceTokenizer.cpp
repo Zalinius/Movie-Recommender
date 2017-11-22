@@ -54,11 +54,13 @@ const vector<string> SentenceTokenizer::tokenize(const string &text){
 			temp.push_back(*it);
 		else{						  //is a abbrev
 			if(*it == '.' && temp.length() != 0 && isAbbreviation(temp) ){
+				//cout << temp << " is an abbreviation!" << endl;
 				temp.push_back(*it);
 			}
 			else{
 				temp.push_back(*it);
 				sents.push_back(temp);
+				cout << "SENTENCE:***" << temp << "***" << endl;
 				temp.clear();
 			}
 		}

@@ -63,7 +63,7 @@ ostream & operator<< (ostream & os, AbstractTokenizer & t){
  */
 bool AbstractTokenizer::isAbbreviation(string term){
 						//is abbreviation   is single letter abbreviation
-	return (abbreviations(lastWord(term)) || lastWord(term).size() == 1);
+	return (abbreviations(lastWord(term)) || (lastWord(term).size() == 1 && isalpha(lastWord(term)[0])) );
 }
 
 /**

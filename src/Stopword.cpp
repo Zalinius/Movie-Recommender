@@ -39,6 +39,7 @@ string::size_type Stopword::size() const{
  * return: true if the token is found, false otherwise
  */
 bool Stopword::operator()(string token) const{
+	std::transform(token.begin(), token.end(), token.begin(), ::tolower);
 	return (find(getTokens().begin(), getTokens().end(), token) != getTokens().end());
 }
 

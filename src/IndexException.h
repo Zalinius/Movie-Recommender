@@ -1,3 +1,17 @@
+/*
+ * IndexException.h
+ *
+ *  Created on: Nov 18, 2017
+ *      Author: Nicole Parmentier
+ */
+
+/*
+ * Override the virtual function what() to provide an explanation of the exception. Change any existing
+code in your classes to use the new exception class in case of errors. Make sure you process the
+exceptions (try...catch) so that your main program does not terminate. In particular, for Task 4,
+asking for recommendations based on a movie name that is not in the index will result in an exception.
+ *
+ */
 
 #ifndef INDEXEXCEPTION_H_
 #define INDEXEXCEPTION_H_
@@ -7,9 +21,6 @@
 
 using namespace std;
 
-/**
- * This class is used to catch mistakes in various indexing functions, namely invalid file names (all tasks) and movie names (task 4)
- */
 class IndexException : public exception {
 public:
 	IndexException();
