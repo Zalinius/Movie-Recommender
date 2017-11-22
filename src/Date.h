@@ -1,10 +1,3 @@
-/*
- * Date.h
- *
- *  Created on: Nov 18, 2017
- *      Author: lapoi
- */
-
 #ifndef DATE_H_
 #define DATE_H_
 
