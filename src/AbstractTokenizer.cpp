@@ -1,10 +1,3 @@
-/*
- * AbstractTokenizer.cpp
- *
- *  Created on: Nov 3, 2017
- *      Author: lapoi
- */
-
 #include "AbstractTokenizer.h"
 #include "Stopword.h"
 #include <iostream>
