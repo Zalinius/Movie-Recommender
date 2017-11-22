@@ -8,14 +8,18 @@
 //
 //#include <iostream>
 //#include "TaskPrinter.h"
+//#include "Stopword.h"
 //using namespace std;
 //
 //int main() {
 //
 //	cout << "Task 3" << endl;
 //
+//	shared_ptr<Stopword> stopwords = TaskPrinter::setUpStopwords();
+//
 //	vector<string>& files = TaskPrinter::setUpFiles();
-//	SentenceIndexer& library = TaskPrinter::setUpSentences(files);
+//
+//	SentenceIndexer& library = TaskPrinter::setUpSentences(files, stopwords);
 //	cout << endl;
 //	string s = TaskPrinter::readQuestion();
 //
@@ -26,7 +30,7 @@
 //	vector<QueryResult> essay = library.query(s,length);
 //
 //	for (vector<QueryResult>::iterator it = essay.begin(); it != essay.end(); ++it){
-//		cout << (it->getI())->content();
+//		cout << (it->getI())->content() << endl;
 //	}
 //
 //

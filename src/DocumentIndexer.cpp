@@ -112,8 +112,8 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 	double h = getIndex().size();
 
 	for(vector<string>::const_iterator it = qTokens.cbegin(); it != qTokens.cend(); ++it){
-		if(word != *it){
-			double scoreQ = (1+log(q1->termFrequency(*it)))*log(h);///(double)it->documentFrequency);
+		if(word != *it && !((*stopwords)(*it))){
+			double scoreQ = (1+log(q1->termFrequency(*it)))*log(h);//(unsigned double)it->getDocumentFrequency());
 			squery.push_back(scoreQ);
 		}
 		else{
@@ -131,9 +131,13 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 		string queryWord = "";
 		//calculate matchingDocweight
 		for(vector<string>::const_iterator it2 = qTokens.cbegin(); it2 != qTokens.cend(); ++it2){ //Iterate through each token in the query
-			if(queryWord != *it2){ // It's a new unique query word
-				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);//calculate the document's weight for the QUERY word //(double)it->documentFrequency);
-				matchingDocweight.push_back(scoreD);
+			if(queryWord != *it2 && !((*stopwords)(*it2))){ // It's a new unique query word and not a stopword
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);//calculate the document's weight for the QUERY word //(unsigned double)it->documentFrequency);
+				if (scoreD < 0)
+					matchingDocweight.push_back(0);
+				else
+					matchingDocweight.push_back(scoreD);
+				queryWord = *it2;
 			}
 			else{
 				//doNothing
@@ -143,8 +147,8 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 		string docWord = "";
 		//calculate pureDocweight
 		for(vector<string>::const_iterator it2 = (*it)->getTokens().cbegin(); it2 != (*it)->getTokens().cend(); ++it2){ //Iterate through each token in the document
-			if(docWord != *it2){
-				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);///(double)it->documentFrequency);
+			if(docWord != *it2 && !((*stopwords)(*it2))){
+				double scoreD = (1+log((*it)->termFrequency(*it2)))*log(h);///(unsigned double)it->documentFrequency);
 				pureDocweight.push_back(scoreD);
 			}
 			else{
@@ -158,14 +162,18 @@ vector<QueryResult>& DocumentIndexer::query(string s, unsigned int n){
 
 	//Sort result from highest to lowest
 	sortByScore(scores);
+	cout << "Scores sorted" << endl;
+		//Set top n+1 results, the best result is the query movie itself and will not be displayed
+		vector<QueryResult>* result = new vector<QueryResult>;
+		unsigned int count = 0;
+		for(vector<QueryResult>::const_iterator it = scores.cbegin(); it != scores.cend() && count != n+1; ++it, ++count){
+			result->push_back(*it);
+		}
 
-	//Set top n results
-	vector<QueryResult>* result = new vector<QueryResult>;
-	for(vector<QueryResult>::const_iterator it = scores.cbegin(); it != scores.cend(); ++it){
-		result->push_back(*it);
-	}
+		cout << "Returning " << result->size() << " results!" << endl;
 
-	return *result;
+		return *result;
+
 }
 
 
