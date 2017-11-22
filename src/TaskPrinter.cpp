@@ -36,7 +36,6 @@ shared_ptr<Stopword> TaskPrinter::setUpStopwords() {
 			cin >> stopWordsFile;
 			stopwords = make_shared<Stopword>(stopWordsFile.c_str());
 			done = true;
-			cout << stopWordsFile << " loaded." << endl;
 		}
 		catch (IndexException& e)
 		{
@@ -364,7 +363,11 @@ size_t TaskPrinter::longest(set<Term> dictionary){
 	return longest;
 }
 
-
+/**
+ * Sets up an ifstream, asking for a new file name if the given name cannot be used to establish an ifstream
+ * @param desiredFile the file name used to set up the ifstream
+ * @return the ifstream set up with the user-provided file name
+ */
 ifstream TaskPrinter::setUpFileStream(string desiredFile){
 	ifstream ifs;
 	bool done = false;
@@ -387,6 +390,10 @@ ifstream TaskPrinter::setUpFileStream(string desiredFile){
 	return ifs;
 }
 
+/**
+ * Sets up a vector of movies created from the movie metadata file and the plot summaries file
+ * @return a vector of pointers to the created Movie objects
+ */
 vector<Movie*>& TaskPrinter::setUpMovies(){
 
 	ifstream ifs = setUpFileStream("movie metadata");
@@ -441,6 +448,12 @@ vector<Movie*>& TaskPrinter::setUpMovies(){
 
 }
 
+/**
+ * Similar to setUpLibrary() for Task 1, and setUpSentences for Task 2, fills the DocumentIndexer with Movie objects
+ * @param movies the vector<Movie*> of Movie pointers to be databased
+ * @param stopwords a shared_ptr<Stopword> which determines which words (the stopwords) are to be excluded from the plot query
+ * @return a DocumentIndexer which stores the movies from the vector argument
+ */
 DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_ptr<Stopword> stopwords){
 	DocumentIndexer* movieDatabase = new DocumentIndexer(movies.size(), stopwords, true);
 	cout << "Initializing database..." << endl;
@@ -450,6 +463,11 @@ DocumentIndexer& TaskPrinter::setUpMovieDatabase(vector<Movie*>& movies, shared_
 	return *movieDatabase;
 }
 
+
+/**
+ * Takes the user's movie query and gives back the top n recommended movies based on the query movie's plot
+ * @param movieDatabase the database of movies to be queried
+ */
 void TaskPrinter::printMovieQuery(DocumentIndexer& movieDatabase){
 	shared_ptr<Stopword> stopwords = movieDatabase.getStopwords();
 	bool newQuery;
