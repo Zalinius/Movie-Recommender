@@ -1,10 +1,3 @@
-/*
- * IndexItem.cpp
- *
- *  Created on: Nov 3, 2017
- *      Author: lapoi
- */
-
 #include "IndexItem.h"
 #include <string>
 #include <algorithm>
